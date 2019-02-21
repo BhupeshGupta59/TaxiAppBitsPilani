@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<item android:id="@+id/users_nav"
+    android:title="Users">
+</item>
+    <item
+        android:id="@+id/owner_nav"
+        android:title="Owners"></item>
+    <item android:id="@+id/driver_nav"
+        android:title="Drivers">
+    </item>
+    <item android:id="@+id/station_nav"
+        android:title="Stations">
+    </item>
+    <item android:id="@+id/raiseComplain_nav"
+        android:title="Raise Complain">
+    </item>
+    <item android:id="@+id/logout_nav"
+        android:title="Logout">
+    </item>
+
+</menu>

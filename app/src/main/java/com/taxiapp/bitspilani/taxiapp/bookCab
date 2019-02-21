@@ -1,0 +1,193 @@
+
+        String source;
+        String destination;
+        Timestamp journeyDate;
+        SimpleDateFormat dateTime = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        String carType;
+        String status;
+        Integer indexOfSource;
+        Integer indexOfDestination;
+        List<Vehicle> vehicleList;
+        Map<String,Integer> subStations;
+        for(Booking booking: bookingList)
+        {
+            source = booking.getSource();
+            destination = booking.getDestination();
+            journeyDate =booking.getJourneyDate();
+            dateTime.format(journeyDate);
+            carType = booking.getCarType();
+            status = booking.getStatus();
+
+
+
+            for(Owner owner: ownerList)
+            {
+                if(owner.getCity().equalsIgnoreCase(destination))
+                {
+                    vehicleList = owner.getListOfVehicle();
+                    for(Vehicle vehicle: vehicleList)
+                    {
+                        if(vehicle.getStatus().equalsIgnoreCase("idle"))
+                        {
+                            if (vehicle.getLastStation().equalsIgnoreCase(source) && vehicle.getCarType().equalsIgnoreCase(carType))
+                            {
+
+
+                                    Log.i("Booked", owner.getName() + " " + vehicle.getName() + " " + vehicle.getVehicleNo());
+                                    return;
+
+
+                            }
+                            else
+                            {
+                                for(Station station: stationList)
+                                {
+                                    if(station.getName().equalsIgnoreCase(source))
+                                    {
+                                        subStations =station.getNearestSubstations();
+                                        for(String subStationName : subStations.keySet())
+                                        {
+                                            if (vehicle.getLastStation().equalsIgnoreCase(subStationName) && vehicle.getCarType().equalsIgnoreCase(carType))
+                                            {
+
+
+                                                Log.i("Booked", owner.getName() + " " + vehicle.getName() + " " + vehicle.getVehicleNo());
+                                                return;
+
+
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                    for(Vehicle vehicle: vehicleList)
+                    {
+                        if(vehicle.getStatus().equalsIgnoreCase("moving"))
+                        {
+                            if (vehicle.getCurrentBooking().getDestination().equalsIgnoreCase(source) && vehicle.getCarType().equalsIgnoreCase(carType))
+                            {
+
+
+                                Log.i("Booked", owner.getName() + " " + vehicle.getName() + " " + vehicle.getVehicleNo());
+                                return;
+
+
+                            }
+                            else
+                            {
+                                for(Station station: stationList)
+                                {
+                                    if(station.getName().equalsIgnoreCase(source))
+                                    {
+                                        subStations =station.getNearestSubstations();
+                                        for(String subStationName : subStations.keySet())
+                                        {
+                                            if (vehicle.getCurrentBooking().getDestination().equalsIgnoreCase(subStationName) && vehicle.getCarType().equalsIgnoreCase(carType))
+                                            {
+
+
+                                                Log.i("Booked", owner.getName() + " " + vehicle.getName() + " " + vehicle.getVehicleNo());
+                                                return;
+
+
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+            for(Owner owner: ownerList)
+            {
+                if(owner.getCity().equalsIgnoreCase(destination))
+                {
+                    vehicleList = owner.getListOfVehicle();
+                    for(Vehicle vehicle: vehicleList)
+                    {
+                        if(vehicle.getStatus().equalsIgnoreCase("idle"))
+                        {
+                            if (vehicle.getLastStation().equalsIgnoreCase(destination) && vehicle.getCarType().equalsIgnoreCase(carType))
+                            {
+
+
+                                Log.i("Booked", owner.getName() + " " + vehicle.getName() + " " + vehicle.getVehicleNo());
+                                return;
+
+
+                            }
+                            else
+                            {
+                                for(Station station: stationList)
+                                {
+                                    if(station.getName().equalsIgnoreCase(destination))
+                                    {
+                                        subStations =station.getNearestSubstations();
+                                        for(String subStationName : subStations.keySet())
+                                        {
+                                            if (vehicle.getLastStation().equalsIgnoreCase(subStationName) && vehicle.getCarType().equalsIgnoreCase(carType))
+                                            {
+
+
+                                                Log.i("Booked", owner.getName() + " " + vehicle.getName() + " " + vehicle.getVehicleNo());
+                                                return;
+
+
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                    for(Vehicle vehicle: vehicleList)
+                    {
+                        if(vehicle.getStatus().equalsIgnoreCase("moving"))
+                        {
+                            if (vehicle.getCurrentBooking().getDestination().equalsIgnoreCase(source) && vehicle.getCarType().equalsIgnoreCase(carType))
+                            {
+
+
+                                Log.i("Booked", owner.getName() + " " + vehicle.getName() + " " + vehicle.getVehicleNo());
+                                return;
+
+
+                            }
+                            else
+                            {
+                                for(Station station: stationList)
+                                {
+                                    if(station.getName().equalsIgnoreCase(destination))
+                                    {
+                                        subStations =station.getNearestSubstations();
+                                        for(String subStationName : subStations.keySet())
+                                        {
+                                            if (vehicle.getCurrentBooking().getDestination().equalsIgnoreCase(subStationName) && vehicle.getCarType().equalsIgnoreCase(carType))
+                                            {
+
+
+                                                Log.i("Booked", owner.getName() + " " + vehicle.getName() + " " + vehicle.getVehicleNo());
+                                                return;
+
+
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+
