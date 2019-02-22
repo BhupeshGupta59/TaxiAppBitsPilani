@@ -1,47 +1,50 @@
 package com.taxiapp.bitspilani.pojo;
 
+import com.taxiapp.bitspilani.CommonDBOperation.Database;
+
 import java.util.*;
 
 public class Owner extends PersonDetails
 {
-    private List<Vehicle> listOfVehicle;
-    private List<Driver> listOfDriver;
+    private List<String> listOfVehicle;
+    private List<String> listOfDriver;
     private String city;
 
     public Owner()
     {
 
     }
-    public Owner(String id, String name, String phoneNo, String emailId, List<Vehicle> listOfVehicle,
-                 List<Driver> listOfDriver,String city) {
-        super(id, name, phoneNo, emailId);
+
+    public Owner(String name, String phoneNo, String emailId, List<String> listOfVehicle, List<String> listOfDriver, String city) {
+        super(name, phoneNo, emailId);
+        Database dB = new Database();
+        setId(dB.getFirestoreInstance().collection("owners").document().getId());
         this.listOfVehicle = listOfVehicle;
         this.listOfDriver = listOfDriver;
-        this.city =city;
+        this.city = city;
     }
 
-    public List<Vehicle> getListOfVehicle() {
+    public List<String> getListOfVehicle() {
         return listOfVehicle;
     }
 
-    public void setListOfVehicle(List<Vehicle> listOfVehicle) {
+    public void setListOfVehicle(List<String> listOfVehicle) {
         this.listOfVehicle = listOfVehicle;
     }
 
-    public List<Driver> getListOfDriver() {
+    public List<String> getListOfDriver() {
         return listOfDriver;
     }
 
-    public void setListOfDriver(List<Driver> listOfDriver) {
+    public void setListOfDriver(List<String> listOfDriver) {
         this.listOfDriver = listOfDriver;
     }
 
-    public void setCity(String city)
-    {
-        this.city =city;
-    }
-    public String getCity()
-    {
+    public String getCity() {
         return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 }

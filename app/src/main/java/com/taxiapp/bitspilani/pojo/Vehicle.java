@@ -1,5 +1,6 @@
 package com.taxiapp.bitspilani.pojo;
 
+import com.taxiapp.bitspilani.CommonDBOperation.Database;
 import com.taxiapp.bitspilani.enums.*;
 import java.util.*;
 
@@ -13,25 +14,24 @@ public class Vehicle
     private String status;
     private String city;
     private int noOfSeats;
-    private List<Booking> bookings;
+    private List<String> listOfBooking;
 
     public Vehicle()
     {
 
     }
 
-    public Vehicle(String id, String name, String carType, String vehicleNo, String location, String status,
-                   int noOfSeats, List<Booking> bookings,String city) {
-        super();
-        this.id = id;
+    public Vehicle(String name, String carType, String vehicleNo, String location, String status, String city, int noOfSeats, List<String> listOfBooking) {
+        Database dB = new Database();
+        id = dB.getFirestoreInstance().collection("vehicles").document().getId();
         this.name = name;
         this.carType = carType;
         this.vehicleNo = vehicleNo;
         this.location = location;
         this.status = status;
+        this.city = city;
         this.noOfSeats = noOfSeats;
-        this.bookings = bookings;
-        this.city =city;
+        this.listOfBooking = listOfBooking;
     }
 
     public String getId() {
@@ -82,6 +82,14 @@ public class Vehicle
         this.status = status;
     }
 
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
     public int getNoOfSeats() {
         return noOfSeats;
     }
@@ -90,41 +98,11 @@ public class Vehicle
         this.noOfSeats = noOfSeats;
     }
 
-    public List<Booking> getBookings() {
-        return bookings;
+    public List<String> getBookings() {
+        return listOfBooking;
     }
 
-    public void setBookings(List<Booking> bookings) {
-        this.bookings = bookings;
+    public void setBookings(List<String> listOfBooking) {
+        this.listOfBooking = listOfBooking;
     }
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-    public String getLastStation()
-    {
-        if(status.equalsIgnoreCase("idle"))
-        {
-            return bookings.get(0).getDestination();
-        }
-        return null;
-    }
-
-   public Booking getCurrentBooking()
-    {
-        if(status.equalsIgnoreCase("moving"))
-        {
-            return bookings.get(0);
-        }
-        return null;
-    }
-
-    public Booking getLastBooking()
-    {
-        return null;
-    }
-
 }

@@ -1,39 +1,33 @@
 package com.taxiapp.bitspilani.pojo;
 
+;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.ServerTimestamp;
+import com.taxiapp.bitspilani.CommonDBOperation.Database;
 
 public class Booking {
     private String id;
     private String source;
     private String destination;
-    private Timestamp journeyDate;
-    private String journeyTIme;
+    private @ServerTimestamp Timestamp timestamp;
     private String journetStartTime;
     private String journeyEndTIme;
     private String status;
     private String carType;
 
-    public String getCarType() {
-        return carType;
-    }
-
-    public void setCarType(String carType) {
-        this.carType = carType;
-    }
 
     public Booking() {
     }
 
-    public Booking(String id, String source, String destination, Timestamp journeyDate, String journeyTIme, String journetStartTime, String journeyEndTIme, String status, String carType) {
-        this.id = id;
+    public Booking(String source, String destination, Timestamp timestamp, String status, String carType) {
+        Database dB = new Database();
+        id = dB.getFirestoreInstance().collection("bookings").document().getId();
         this.source = source;
         this.destination = destination;
-        this.journeyDate = journeyDate;
-        this.journeyTIme = journeyTIme;
-        this.journetStartTime = journetStartTime;
-        this.journeyEndTIme = journeyEndTIme;
+        this.timestamp = timestamp;
         this.status = status;
         this.carType = carType;
+
     }
 
     public String getId() {
@@ -60,20 +54,12 @@ public class Booking {
         this.destination = destination;
     }
 
-    public Timestamp getJourneyDate() {
-        return journeyDate;
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
 
-    public void setJourneyDate(Timestamp journeyDate) {
-        this.journeyDate = journeyDate;
-    }
-
-    public String getJourneyTIme() {
-        return journeyTIme;
-    }
-
-    public void setJourneyTIme(String journeyTIme) {
-        this.journeyTIme = journeyTIme;
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getJournetStartTime() {
@@ -99,4 +85,14 @@ public class Booking {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getCarType() {
+        return carType;
+    }
+
+    public void setCarType(String carType) {
+        this.carType = carType;
+    }
+
+
 }

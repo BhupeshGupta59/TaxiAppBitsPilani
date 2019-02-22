@@ -1,38 +1,42 @@
 package com.taxiapp.bitspilani.pojo;
 
+import com.taxiapp.bitspilani.CommonDBOperation.Database;
+
 import java.util.*;
 
 public class Driver extends PersonDetails
 {
-    private String address;
-    private List<Booking> listOfBooking;
+
+    private String LicenseNo;
+    private List<String> listOfBooking;
     private String location;
     public Driver()
     {
 
     }
 
-    public Driver(String id, String name, String phoneNo, String emailId, String address, List<Booking> listOfBooking,
-                  String location) {
-        super(id, name, phoneNo, emailId);
-        this.address = address;
+    public Driver(String name, String phoneNo, String emailId, String licenseNo, List<String> listOfBooking, String location) {
+        super(name, phoneNo, emailId);
+        Database dB = new Database();
+        setId(dB.getFirestoreInstance().collection("drivers").document().getId());
+        LicenseNo = licenseNo;
         this.listOfBooking = listOfBooking;
         this.location = location;
     }
 
-    public String getAddress() {
-        return address;
+    public String getLicenseNo() {
+        return LicenseNo;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setLicenseNo(String licenseNo) {
+        LicenseNo = licenseNo;
     }
 
-    public List<Booking> getListOfBooking() {
+    public List<String> getListOfBooking() {
         return listOfBooking;
     }
 
-    public void setListOfBooking(List<Booking> listOfBooking) {
+    public void setListOfBooking(List<String> listOfBooking) {
         this.listOfBooking = listOfBooking;
     }
 
@@ -43,5 +47,4 @@ public class Driver extends PersonDetails
     public void setLocation(String location) {
         this.location = location;
     }
-
 }

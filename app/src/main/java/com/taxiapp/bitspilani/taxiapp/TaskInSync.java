@@ -13,6 +13,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.taxiapp.bitspilani.pojo.Admin;
 import com.taxiapp.bitspilani.pojo.Booking;
 import com.taxiapp.bitspilani.pojo.Owner;
 import com.taxiapp.bitspilani.pojo.Station;
@@ -47,7 +48,7 @@ public class TaskInSync  {
         Task<QuerySnapshot> stations = FirebaseFirestore.getInstance().collection("stations").get();
         Task<QuerySnapshot> owners = FirebaseFirestore.getInstance().collection("owners").get();
         Task<QuerySnapshot> bookings = FirebaseFirestore.getInstance().collection("bookings").get();
-        Task<QuerySnapshot> t1= stations.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+      /*  Task<QuerySnapshot> t1= stations.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()) {
@@ -56,18 +57,19 @@ public class TaskInSync  {
                         Log.i("abc",documentSnapshot.toObject(Station.class).getName());
                     }
 
+
                 }
 
             }
-        });
+        });*/
 
         //Log.i("abc","Something");
 
-        //Task allTasks =Tasks.whenAllSuccess(stations, owners, bookings);
+        Task allTasks =Tasks.whenAllSuccess(stations, owners, bookings);
 
 
 
-      /*  allTasks.addOnSuccessListener(new OnSuccessListener<List<Object>>() {
+      allTasks.addOnSuccessListener(new OnSuccessListener<List<Object>>() {
             @Override
             public void onSuccess(List<Object> objects) {
                QuerySnapshot q1 = (QuerySnapshot)objects.get(0);
@@ -89,11 +91,13 @@ public class TaskInSync  {
                 Log.i("abc",stationList.get(0).getName());
                 Log.i("abc",ownerList.get(0).getName());
                 Log.i("abc",bookingList.get(0).getSource());
+                Admin admin = new Admin();
+               // admin.bookCab(bookingList,ownerList,stationList);
 
             }
 
 
-        });*/
+        });
 
 
 

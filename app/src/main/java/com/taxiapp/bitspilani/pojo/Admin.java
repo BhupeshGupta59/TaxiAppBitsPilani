@@ -9,6 +9,7 @@ import java.util.*;
 
 public class Admin
 {
+
     private List<User> listOfUsers;
     private List<Owner> listOfOwners;
 
@@ -89,7 +90,7 @@ public class Admin
     {
 
     }
-    public void bookCab(List<Booking> bookingList,List<Owner> ownerList,List<Station> stationList)
+   /* public void bookCab(List<Booking> bookingList,List<Owner> ownerList,List<Station> stationList)
 
     {
 
@@ -124,9 +125,10 @@ public class Admin
                     for(Vehicle vehicle: vehicleList)
                     {
                         Log.i("VehicleStatus + dummy",vehicle.getStatus());
-                        if(vehicle.getStatus().equalsIgnoreCase("idle"))
+                        //Log.i("VLastStation+ dummy",vehicle.getBookings().get(0).getDestination());
+                        /*if(vehicle.getStatus().equalsIgnoreCase("idle"))
                         {
-                            Log.i("VLastStation+ dummy",vehicle.getLastStation());
+
                             Log.i("VehicleCarType + dummy",vehicle.getCarType());
                             if (vehicle.getLastStation().equalsIgnoreCase(source) && vehicle.getCarType().equalsIgnoreCase(carType))
                             {
@@ -160,9 +162,9 @@ public class Admin
 
                                 }
                             }
-                        }
-                    }
-                    for(Vehicle vehicle: vehicleList)
+                        }*/
+
+                    /*for(Vehicle vehicle: vehicleList)
                     {
                         if(vehicle.getStatus().equalsIgnoreCase("moving"))
                         {
@@ -200,6 +202,7 @@ public class Admin
                             }
                         }
                     }
+
                 }
 
             }
@@ -286,8 +289,8 @@ public class Admin
                     }
                 }
 
-            }*/
+            }
 
         }
-    }
+    }*/
 }
