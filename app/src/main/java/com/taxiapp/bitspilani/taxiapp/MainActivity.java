@@ -7,6 +7,7 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -27,13 +28,20 @@ import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 import com.taxiapp.bitspilani.pojo.Admin;
 import com.taxiapp.bitspilani.pojo.Booking;
@@ -45,11 +53,14 @@ import com.taxiapp.bitspilani.pojo.User;
 import com.taxiapp.bitspilani.pojo.Vehicle;
 
 
+
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -103,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        Booking b1 = new Booking("Delhi","Pilani", new Timestamp(new Date(2019-1900,2,01,7,00)),"pending","micro");
+        /*Booking b1 = new Booking("Delhi","Pilani", new Timestamp(new Date(2019-1900,2,01,7,00)),"pending","micro");
         Booking b2 = new Booking("Delhi","Pilani", new Timestamp(new Date(2019-1900,2,02,8,00)),"pending","micro");
         Booking b3 = new Booking("Delhi","Pilani", new Timestamp(new Date(2019-1900,2,03,9,00)),"pending","micro");
         Booking b4 = new Booking("Jaipur","Pilani", new Timestamp(new Date(2019-1900,2,04,10,00)),"pending","suv");
@@ -146,24 +157,39 @@ public class MainActivity extends AppCompatActivity {
         user5.add(b11.getId());
 
 
-        User u1 = new User("FirstUser","1111111111","firstuser@gmail.com","FirstDepartment",user1,null);
+        User u1 = new User("Ismail Taibani","8749593349","ismailtaibani@gmail.com","Electronics",null,null);
+
+        User u2 = new User("Shivam Khandelwal","77924829342","shivamchampion@gmail.com","Civil",null,null);
+
+        User u3 = new User("Bhupesh Gupta","7972166629","Bhupeshkumar@gmail.com","Computer Science",null,null);
+
+        User u4 = new User("Akhilesh Singla","9823524364","akhileshkumar@gmail.com","Computer Science",null,null);
+
+        User u5 = new User("Mayur","8458343462","Mayur@gmail.com","Electrical",null,null);
+
+        User u6 = new User("Nileshwar Kumar","7859730374","nilesh6752@gmail.com","Sofware System",null,null);
         dB.getFirestoreInstance().collection("users").document(u1.getId()).set(u1);
-        User u2 = new User("SecondUser","2222222222","seconduser@gmail.com","SecondDepartment",user2,null);
         dB.getFirestoreInstance().collection("users").document(u2.getId()).set(u2);
-        User u3 = new User("ThirdUser","3333333333","thirduser@gmail.com","ThirdDepartment",user3,null);
         dB.getFirestoreInstance().collection("users").document(u3.getId()).set(u3);
-        User u4 = new User("FourthUser","4444444444","fourthuser@gmail.com","FourthDepartment",user4,null);
         dB.getFirestoreInstance().collection("users").document(u4.getId()).set(u4);
-        User u5 = new User("FifthUser","5555555555","fifthuser@gmail.com","FifthDepartment",user5,null);
         dB.getFirestoreInstance().collection("users").document(u5.getId()).set(u5);
-        User u6 = new User("SixthUser","6666666666","sixthuser@gmail.com","SixthDepartment",user6,null);
-        dB.getFirestoreInstance().collection("users").document(u6.getId()).set(u6);
+        dB.getFirestoreInstance().collection("users").document(u6.getId()).set(u6);*/
+
+        /*Booking b1 = new Booking("Delhi","Pilani", new Timestamp(new Date(2019-1900,2,25,8,00)),"pending","micro");
+        dB.getFirestoreInstance().collection("bookings").document(b1.getId()).set(b1);*/
+
+        /*List<String> listOfBooking = new ArrayList<String>();
+        listOfBooking.add("2GexEXOp57ZemhFwMfb4");
+        User u2 = new User("Shivam Khandelwal","77924829342","shivamchampion@gmail.com","Civil",listOfBooking,null);
+
+        dB.getFirestoreInstance().collection("users").document("8m3ayv9jYHmXF1Gp8Trt").set(u2);*/
 
 
 
 
 
-        Driver d1 =new Driver("FirstDriver","1111111111","firstdriver@gmail.com","1111",null,null);
+
+        /*Driver d1 =new Driver("FirstDriver","1111111111","firstdriver@gmail.com","1111",null,null);
         Driver d2 =new Driver("SecondDriver","2222222222","seconddriver@gmail.com","2222",null,null);
         Driver d3 =new Driver("ThirdDriver","3333333333","thirddriver@gmail.com","3333",null,null);
         Driver d4 =new Driver("FourthDriver","4444444444","fourthdriver@gmail.com","4444",null,null);
@@ -174,7 +200,58 @@ public class MainActivity extends AppCompatActivity {
         dB.getFirestoreInstance().collection("drivers").document(d3.getId()).set(d3);
         dB.getFirestoreInstance().collection("drivers").document(d4.getId()).set(d4);
         dB.getFirestoreInstance().collection("drivers").document(d5.getId()).set(d5);
-        dB.getFirestoreInstance().collection("drivers").document(d6.getId()).set(d6);
+        dB.getFirestoreInstance().collection("drivers").document(d6.getId()).set(d6);*/
+
+        /*Station s1 =new Station("Pilani",null);
+        Station s2 =new Station("Delhi",null);
+        Station s3 =new Station("Jaipur",null);
+        Station s4 =new Station("Ghaziabad",null);
+        Station s5 =new Station("Sikkar",null);
+        dB.getFirestoreInstance().collection("stations").document(s1.getId()).set(s1);
+        dB.getFirestoreInstance().collection("stations").document(s2.getId()).set(s2);
+        dB.getFirestoreInstance().collection("stations").document(s3.getId()).set(s3);
+        dB.getFirestoreInstance().collection("stations").document(s4.getId()).set(s4);
+        dB.getFirestoreInstance().collection("stations").document(s5.getId()).set(s5);*/
+
+        /*List<String> list = new ArrayList<String>();
+        list.add("2rFLNhjI67cip4EWDMq4");
+
+        List<String> list2 = new ArrayList<String>();
+        list2.add("4HzYXcc4uIjnmynRCKpJ");
+
+        Vehicle v1 =new Vehicle("Maruti", "Micro", "DL14dhfd", null, "idle", "Delhi", 3, null);
+        Vehicle v2 =new Vehicle("Wagnar", "Micro", "DL1235", null, "idle", "Delhi", 3,null);
+        Vehicle v3 =new Vehicle("Swift Desire", "Sedan", "DL14dhfd", null, "idle", "Pilani", 3, null);
+        Vehicle v4 =new Vehicle("I20", "Micro", "RJ2433", null, "idle", "Pilani", 3, null);
+        Vehicle v5 =new Vehicle("Swift Desire", "Micro", "DLfdgdhfd", null, "idle", "Delhi", 3, null);
+        Vehicle v6 =new Vehicle("Radion", "SUV", "RJ52438", null, "idle", "Pilani", 4, null);
+        dB.getFirestoreInstance().collection("vehicle").document(v1.getId()).set(v1);
+        dB.getFirestoreInstance().collection("vehicle").document(v2.getId()).set(v2);
+        dB.getFirestoreInstance().collection("vehicle").document(v3.getId()).set(v3);
+        dB.getFirestoreInstance().collection("vehicle").document(v4.getId()).set(v4);
+        dB.getFirestoreInstance().collection("vehicle").document(v5.getId()).set(v5);
+        dB.getFirestoreInstance().collection("vehicle").document(v6.getId()).set(v6);*/
+
+        /*List<String> listv1 = new ArrayList<String>();
+        list.add("5mvHLTDuUcEMCIoG20ro");
+        list.add("86oaP6YhbekMUtyvOlAJ");
+
+        List<String> listd1 = new ArrayList<String>();
+        list.add("1urmOyrdls5qUb4NXhJz");
+        list.add("3fqnNrb6fAMkF9bTZUIA");
+
+
+        Owner o1 = new Owner("a", "9548565835", "abc@gmail.com", listv1, listd1, "Pilani");
+
+        List<String> listv2 = new ArrayList<String>();
+        list.add("vnKOKvjhcuoYWIQnwrYB");
+
+
+        List<String> listd2 = new ArrayList<String>();
+        list.add("1urmOyrdls5qUb4NXhJz");
+
+        Owner o2 = new Owner("b", "9889665544", "cde@gmail.com", listv2, listd2, "Delhi");*/
+
 
 
         //Log.i("abc",t.getStationList().get(0).getName());
@@ -255,9 +332,59 @@ public class MainActivity extends AppCompatActivity {
         bList2.add(b5);
 
         User u1 = new User("1","Ismail","88474384","ismail@gmail.com","Computer Science",bList1,"2");
-        User u2 = new User("2","Mayur","73458395","mayur@gmail.com","Computer Science",bList2,"2");*/
+        User u2 = new User("2","Mayur","73458395","mayur@gmail.com","Computer Science",bList2,"2");
         //dB.getFirestoreInstance().collection("users").document(u1.getId()).set(u1);
         //dB.getFirestoreInstance().collection("users").document(u2.getId()).set(u2);
+
+        //transactionPromise();
+
+        List<Vehicle> listOfVehicle = new ArrayList<Vehicle>();
+        //Vehicle v1 =new Vehicle("Maruti", "Micro", "DL14dhfd", null, "idle", "Delhi", 3, null);
+        //Vehicle v2 =new Vehicle("Wagnar", "Micro", "DL1235", null, "idle", "Delhi", 3,null);
+       Vehicle v3 =new Vehicle("Swift Desire", "Sedan", "DL14dhfd", null, "idle", "Pilani", 3, null);
+        Vehicle v4 =new Vehicle("I20", "Micro", "RJ2433", null, "idle", "Pilani", 3, null);
+        //Vehicle v5 =new Vehicle("Swift Desire", "Micro", "DLfdgdhfd", null, "idle", "Delhi", 3, null);
+        Vehicle v6 =new Vehicle("Radion", "SUV", "RJ52438", null, "idle", "Pilani", 4, null);
+        listOfVehicle.add(v3);
+        listOfVehicle.add(v4);
+        listOfVehicle.add(v6);
+
+        List<String> listOfDriver = new ArrayList<String>();
+        listOfDriver.add("MEppmACKocmWfKUBzc6q");
+        listOfDriver.add("PJdU092ET53GI2c0TZwV");
+        listOfDriver.add("XI1nG7eU31CO5Kcabh1f");
+
+
+        List<Booking> bList2 = new ArrayList<>();
+        Owner o2 = new Owner("o2", "9875775771", "o2@gmail.com", listOfVehicle, listOfDriver, "Pilani");
+        dB.getFirestoreInstance().collection("owners").document(o2.getId()).set(o2);*/
+
+        /*Map<String, GeoPoint> nearestSubstations = new HashMap<>();
+        nearestSubstations.put("Noida", null);
+        nearestSubstations.put("Gaziabad", null);
+
+        Station  station = new Station("Delhi",nearestSubstations);
+        dB.getFirestoreInstance().collection("stations").document(station.getId()).set(station);*/
+
+        Task<QuerySnapshot> bookingTask = dB.getFirestoreInstance().collection("bookings").get();
+        Task<QuerySnapshot> ownerTask = dB.getFirestoreInstance().collection("owners").get();
+        Task<QuerySnapshot> stationTask = dB.getFirestoreInstance().collection("stations").get();
+        dB.getFirestoreInstance().collection("bookings")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Booking b =document.toObject(Booking.class);
+                                Log.i("abc",b.getDestination());
+                            }
+                        } else {
+                            Log.d("abc", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
 
     }
 
@@ -284,4 +411,72 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /*String returnInfoFromTransaction(long population) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("population", population);
+        // Block until transaction is complete is using transaction.get()
+       // dB.getFirestoreInstance().collection("users").document("SF").set(map).get();
+        // [START fs_return_info_transaction]
+        final DocumentReference docRef = dB.getFirestoreInstance().collection("users").document("0rqkiuyMlnhllE1VgeQY");
+        ApiFuture<String> transaction =
+                dB.getFirestoreInstance().runTransaction(
+                        new Transaction.Function<String>() {
+                            @Nullable
+                            @Override
+                            public String apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                                DocumentSnapshot snapshot = transaction.get(docRef);
+                                boolean i=false;
+                                if (!snapshot.exists()) {
+                                   Log.i("abc:", snapshot.getString("name"));
+                                    i= true;
+                                    return "New record is inserted";
+
+                                }
+
+                                if (i) {
+                                    Log.i("got for name:", snapshot.getString("name"));
+                                    return "Record is updated";
+                                } else {
+                                    return "Record is skipped";
+                                }
+                            }
+                        });
+        // Print information retrieved from transaction
+        System.out.println(transaction.get());
+        // [END fs_return_info_transaction]
+        return transaction.get();
+    }
+*/
+
+    public void transactionPromise() {
+        // [START transaction_with_result]
+        final DocumentReference sfDocRef = dB.getFirestoreInstance().collection("users").document("0rqkiuyMlnhllE1VgeQY");
+
+         dB.getFirestoreInstance().runTransaction(new Transaction.Function<String>() {
+            @Override
+            public String apply(Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(sfDocRef);
+                String newPopulation = snapshot.getString("name");
+                if (newPopulation !=null) {
+                    //transaction.update(sfDocRef, "population", newPopulation);
+                    return newPopulation;
+                } else {
+                    throw new FirebaseFirestoreException("Population too high",
+                            FirebaseFirestoreException.Code.ABORTED);
+                }
+            }
+        }).addOnSuccessListener(new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String result) {
+                Log.i("abc", "Transaction success: " +result);
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i("abc", "Transaction failure.", e);
+                    }
+                });
+        // [END transaction_with_result]
+    }
 }

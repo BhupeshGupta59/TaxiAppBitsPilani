@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Owner extends PersonDetails
 {
-    private List<String> listOfVehicle;
+    private List<Vehicle> listOfVehicle;
     private List<String> listOfDriver;
     private String city;
 
@@ -15,7 +15,7 @@ public class Owner extends PersonDetails
 
     }
 
-    public Owner(String name, String phoneNo, String emailId, List<String> listOfVehicle, List<String> listOfDriver, String city) {
+    public Owner(String name, String phoneNo, String emailId, List<Vehicle> listOfVehicle, List<String> listOfDriver, String city) {
         super(name, phoneNo, emailId);
         Database dB = new Database();
         setId(dB.getFirestoreInstance().collection("owners").document().getId());
@@ -24,11 +24,11 @@ public class Owner extends PersonDetails
         this.city = city;
     }
 
-    public List<String> getListOfVehicle() {
+    public List<Vehicle> getListOfVehicle() {
         return listOfVehicle;
     }
 
-    public void setListOfVehicle(List<String> listOfVehicle) {
+    public void setListOfVehicle(List<Vehicle> listOfVehicle) {
         this.listOfVehicle = listOfVehicle;
     }
 

@@ -1,6 +1,6 @@
 package com.taxiapp.bitspilani.pojo;
 
-;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;

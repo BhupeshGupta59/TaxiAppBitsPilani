@@ -1,5 +1,6 @@
 package com.taxiapp.bitspilani.pojo;
 
+import com.google.firebase.firestore.GeoPoint;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 
 import java.util.*;
@@ -8,14 +9,14 @@ public class User extends PersonDetails
 {
     private String department;
     private List<String> listOfBooking;
-    private String location;
+    private GeoPoint location;
 
     public User()
     {
 
     }
 
-    public User(String name, String phoneNo, String emailId, String department, List<String> listOfBooking, String location) {
+    public User(String name, String phoneNo, String emailId, String department, List<String> listOfBooking, GeoPoint location) {
 
         super(name, phoneNo, emailId);
         Database dB = new Database();
@@ -41,11 +42,11 @@ public class User extends PersonDetails
         this.listOfBooking = listOfBooking;
     }
 
-    public String getLocation() {
+    public GeoPoint getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(GeoPoint location) {
         this.location = location;
     }
 }

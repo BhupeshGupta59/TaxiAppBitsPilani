@@ -1,5 +1,6 @@
 package com.taxiapp.bitspilani.pojo;
 
+import com.google.firebase.firestore.GeoPoint;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 import com.taxiapp.bitspilani.enums.*;
 import java.util.*;
@@ -10,7 +11,7 @@ public class Vehicle
     private String name;
     private String carType;
     private String vehicleNo;
-    private String location;
+    private GeoPoint location;
     private String status;
     private String city;
     private int noOfSeats;
@@ -21,7 +22,7 @@ public class Vehicle
 
     }
 
-    public Vehicle(String name, String carType, String vehicleNo, String location, String status, String city, int noOfSeats, List<String> listOfBooking) {
+    public Vehicle(String name, String carType, String vehicleNo, GeoPoint location, String status, String city, int noOfSeats, List<String> listOfBooking) {
         Database dB = new Database();
         id = dB.getFirestoreInstance().collection("vehicles").document().getId();
         this.name = name;
@@ -66,11 +67,11 @@ public class Vehicle
         this.vehicleNo = vehicleNo;
     }
 
-    public String getLocation() {
+    public GeoPoint getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(GeoPoint location) {
         this.location = location;
     }
 
