@@ -8,20 +8,20 @@ public class Driver extends PersonDetails
 {
 
     private String LicenseNo;
-    private List<String> listOfBooking;
+
     private String location;
     public Driver()
     {
 
     }
 
-    public Driver(String name, String phoneNo, String emailId, String licenseNo, List<String> listOfBooking, String location) {
+    public Driver(String name, String phoneNo, String emailId, String licenseNo) {
         super(name, phoneNo, emailId);
         Database dB = new Database();
         setId(dB.getFirestoreInstance().collection("drivers").document().getId());
         LicenseNo = licenseNo;
-        this.listOfBooking = listOfBooking;
-        this.location = location;
+
+
     }
 
     public String getLicenseNo() {
@@ -32,13 +32,7 @@ public class Driver extends PersonDetails
         LicenseNo = licenseNo;
     }
 
-    public List<String> getListOfBooking() {
-        return listOfBooking;
-    }
 
-    public void setListOfBooking(List<String> listOfBooking) {
-        this.listOfBooking = listOfBooking;
-    }
 
     public String getLocation() {
         return location;

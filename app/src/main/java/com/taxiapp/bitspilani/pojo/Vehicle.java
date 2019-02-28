@@ -14,25 +14,30 @@ public class Vehicle
     private GeoPoint location;
     private String status;
     private String city;
+    private String lastLocationName;
     private int noOfSeats;
-    private List<String> listOfBooking;
+
+
+
+
+
 
     public Vehicle()
     {
 
     }
 
-    public Vehicle(String name, String carType, String vehicleNo, GeoPoint location, String status, String city, int noOfSeats, List<String> listOfBooking) {
+    public Vehicle(String name, String carType, String vehicleNo, String city, int noOfSeats) {
         Database dB = new Database();
         id = dB.getFirestoreInstance().collection("vehicles").document().getId();
         this.name = name;
         this.carType = carType;
         this.vehicleNo = vehicleNo;
-        this.location = location;
-        this.status = status;
+
+        status = "idle";
         this.city = city;
         this.noOfSeats = noOfSeats;
-        this.listOfBooking = listOfBooking;
+
     }
 
     public String getId() {
@@ -99,11 +104,18 @@ public class Vehicle
         this.noOfSeats = noOfSeats;
     }
 
-    public List<String> getBookings() {
-        return listOfBooking;
+    public String getLastLocationName() {
+        if(lastLocationName!=null)
+        {
+            return lastLocationName;
+        }
+        return city;
     }
 
-    public void setBookings(List<String> listOfBooking) {
-        this.listOfBooking = listOfBooking;
+    public void setLastLocation(String lastLocationName) {
+        this.lastLocationName = lastLocationName;
     }
+
+
+
 }
