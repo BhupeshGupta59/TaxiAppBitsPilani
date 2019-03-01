@@ -32,9 +32,12 @@ import com.google.firebase.firestore.WriteBatch;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 import com.taxiapp.bitspilani.pojo.Admin;
 import com.taxiapp.bitspilani.pojo.Booking;
+import com.taxiapp.bitspilani.pojo.Driver;
+import com.taxiapp.bitspilani.pojo.Owner;
 import com.taxiapp.bitspilani.pojo.PersonDetails;
 
 import com.taxiapp.bitspilani.pojo.User;
+import com.taxiapp.bitspilani.pojo.Vehicle;
 
 
 import java.util.ArrayList;
@@ -87,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listview) ;
 
         final List<Booking> bList = new ArrayList<>();
-        Admin a = new Admin();
+
        //a.bookCab();
         new ScheduleTask().execute();
         btnSchedule.setOnClickListener(new View.OnClickListener() {

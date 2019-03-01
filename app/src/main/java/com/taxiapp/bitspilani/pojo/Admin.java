@@ -106,7 +106,8 @@ public class Admin
         @Override
         protected List<String> doInBackground(String... strings) {
             Database dB = new Database();
-            Task<QuerySnapshot> bookingTask = dB.getFirestoreInstance().collection("bookings").whereEqualTo("status","pending").orderBy("timestamp").get();
+            Task<QuerySnapshot> bookingTask = dB.getFirestoreInstance().collection("bookings")
+                    .whereEqualTo("status","pending").orderBy("timestamp").get();
             Task<QuerySnapshot> ownerTask = dB.getFirestoreInstance().collection("owners").get();
             Task<QuerySnapshot> stationTask = dB.getFirestoreInstance().collection("stations").get();
             Task<List<Object>> allTasks = Tasks.whenAllSuccess(stationTask, ownerTask, bookingTask);
@@ -188,36 +189,51 @@ public class Admin
        // WriteBatch batch = dB.getFirestoreInstance().batch();
         Iterator bookingIterator = bookingList.iterator();
         Map<String,Vehicle> bookedVehicle = new HashMap<>();
-        int i=1;
+        int flag;
+        DocumentReference currentBookingRef = null;
         Log.i("bookingsize",Integer.toString(bookingList.size()));
+
+        WriteBatch batch = dB.getFirestoreInstance().batch();
         while (bookingIterator.hasNext()) {
-
+            flag=0;
             Booking currentBooking = (Booking) bookingIterator.next();
-
+            currentBookingRef = dB.getFirestoreInstance().collection("bookings").document(currentBooking.getId());
 
            // Log.i("bookingId",currentBooking.getId());
          //   Log.i("currentBooking",currentBooking.getId());
           if(getCab(currentBooking.getDestination(), currentBooking.getSource(), currentBooking, ownerList, stationList))
             {
+                flag=1;
                // Log.i("currentBooking1",currentBooking.getId());
             }
             else if(getCab(currentBooking.getDestination(), currentBooking.getDestination(), currentBooking, ownerList, stationList))
             {
+                flag=1;
                 //Log.i("currentBooking2",currentBooking.getId());
 
             }
            else if(getCab(currentBooking.getSource(), currentBooking.getSource(), currentBooking, ownerList, stationList))
             {
-
+                flag=1;
                 //Log.i("currentBooking3",currentBooking.getId());
             }
            else if( getCab(currentBooking.getSource(), currentBooking.getDestination(), currentBooking, ownerList, stationList))
            {
-
+               flag=1;
                //Log.i("currentBooking4",currentBooking.getId());
+           }
+           if(flag==0)
+           {
+               batch.update(currentBookingRef,"status","unapproved");
            }
 
         }
+        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                // ...
+            }
+        });
         Log.i("abc","Between");
         return null;
     }
@@ -238,9 +254,12 @@ public class Admin
             if(currentOwner.getCity().equalsIgnoreCase(ownerCity))
             {
                 Iterator vehicleIterator = currentOwner.getListOfVehicle().iterator();
+                int vehicleIndex =0;
                 while(vehicleIterator.hasNext())
                 {
+
                     Vehicle currentVehicle = (Vehicle) vehicleIterator.next();
+
                     if(currentVehicle.getCarType().equalsIgnoreCase(carType) &&  currentVehicle.getStatus().equalsIgnoreCase("idle"))
                     {
 
@@ -253,14 +272,18 @@ public class Admin
                                 if(vehicleCity.equalsIgnoreCase(currentVehicle.getLastLocationName()))
                                 {   Log.i("booked",currentBooking.getId()+" "+currentVehicle.getName());
                                     currentVehicle.setStatus("busy");
-                                    currentVehicleRef = dB.getFirestoreInstance().collection("vehicle").document(currentVehicle.getId());
+
+                                    currentVehicleRef = dB.getFirestoreInstance().collection("vehicles").document(currentVehicle.getId());
                                     currentOwnerRef = dB.getFirestoreInstance().collection("owners").document(currentOwner.getId());
                                     currentBookingRef = dB.getFirestoreInstance().collection("bookings").document(currentBooking.getId());
                                     batch.update(currentBookingRef,"status","approved");
                                     batch.update(currentBookingRef,"vehicleRef",currentVehicleRef);
+                                    batch.update(currentBookingRef,"vehicleRef",currentVehicleRef);
                                     batch.update(currentBookingRef,"ownerRef",currentOwnerRef);
                                     batch.update(currentBookingRef,"vehicleId",currentVehicle.getId());
                                     batch.update(currentBookingRef,"ownerId",currentOwner.getId());
+                                    //batch.update(currentOwnerRef,"listOfVehicle."+Integer.toString(vehicleIndex)+".status","busy");
+                                    batch.update(currentVehicleRef,"status","busy");
                                     batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
@@ -280,14 +303,16 @@ public class Admin
                                         if(currentSubstationName.equalsIgnoreCase(currentVehicle.getLastLocationName()))
                                         {   Log.i("booked",currentBooking.getId()+" "+currentVehicle.getName());
                                             currentVehicle.setStatus("busy");
-                                            currentVehicleRef = dB.getFirestoreInstance().collection("vehicle").document(currentVehicle.getId());
+                                            currentVehicleRef = dB.getFirestoreInstance().collection("vehicles").document(currentVehicle.getId());
                                             currentOwnerRef = dB.getFirestoreInstance().collection("owners").document(currentOwner.getId());
                                             currentBookingRef = dB.getFirestoreInstance().collection("bookings").document(currentBooking.getId());
-                                           batch.update(currentBookingRef,"status","approved");
+                                            batch.update(currentBookingRef,"status","approved");
                                             batch.update(currentBookingRef,"vehicleRef",currentVehicleRef);
                                             batch.update(currentBookingRef,"ownerRef",currentOwnerRef);
                                             batch.update(currentBookingRef,"vehicleId",currentVehicle.getId());
                                             batch.update(currentBookingRef,"ownerId",currentOwner.getId());
+                                           // batch.update(currentOwnerRef,"listOfVehicle."+Integer.toString(vehicleIndex)+".status","busy");
+                                            batch.update(currentVehicleRef,"status","busy");
                                             batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
@@ -303,6 +328,8 @@ public class Admin
 
                         }
                     }
+
+                    vehicleIndex++;
 
                 }
             }
