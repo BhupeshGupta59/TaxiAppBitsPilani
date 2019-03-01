@@ -28,10 +28,12 @@ public class Database
     //private FirebaseDatabase databaseInstance;
     private List<Owner> ownerList=new ArrayList<>();
     private FirebaseFirestore firestoreInstance;
+    private DatabaseReference mDatabase;
 
     public void setOwnerList() {
 
         firestoreInstance = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         firestoreInstance.collection("owners")
                 .get()
@@ -91,6 +93,12 @@ public class Database
     {
         firestoreInstance = FirebaseFirestore.getInstance();
         return firestoreInstance;
+    }
+
+    public DatabaseReference getDatabaseRef()
+    {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        return mDatabase;
     }
     public void addOwner(Owner owner)
     {

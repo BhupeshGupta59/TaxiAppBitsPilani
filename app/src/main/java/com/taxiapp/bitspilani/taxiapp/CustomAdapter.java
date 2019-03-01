@@ -25,20 +25,6 @@ class CustomAdapter extends ArrayAdapter<Booking>
     public CustomAdapter(Context context, List<Booking> object){
         super(context,0, object);
     }
-   /* @Override
-    public int getCount() {
-        return IMAGES.length;
-    }
-
-        /*@Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        //@Override
-        /*public long getItemId(int position) {
-            return 0;
-        }*/
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -55,21 +41,21 @@ class CustomAdapter extends ArrayAdapter<Booking>
         TextView textView_status  = (TextView) convertView.findViewById(R.id.textView_status);
 
         Booking b = getItem(position);
-        //Timestamp dateTime= b.getJourneyDate();
-       // Date date = dateTime.toDate();
+        Timestamp dateTime= b.getTimestamp();
+        Date date = dateTime.toDate();
         String strDateFormat = "hh:mm a";
         String dFormat = "dd/MM/yyyy";
         DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
         DateFormat dFormat1 =new SimpleDateFormat(dFormat);
-        //String formattedDate= dateFormat.format(date);
-        //String formatted= dFormat1.format(date);
+        String formattedDate= dateFormat.format(date);
+        String formatted= dFormat1.format(date);
 
         imageView.setImageResource(IMAGES[0]);
         textView_source.setText("Source : "+b.getSource());
         textView_dest.setText("Destination: "+b.getDestination());
-      // textView_time.setText("Time: "+formattedDate);
-      // textView_date.setText("Date: "+formatted);
-       textView_status.setText(b.getStatus().toUpperCase());
+        textView_time.setText("Time: "+formattedDate);
+        textView_date.setText("Date: "+formatted);
+        textView_status.setText(b.getStatus().toUpperCase());
         textView_status.setTextColor(Color.parseColor("#ff0000"));
        // textView_source.setTypeface(textView_source.getTypeface(), Typeface.BOLD);
         //textView_source.append("abc");
