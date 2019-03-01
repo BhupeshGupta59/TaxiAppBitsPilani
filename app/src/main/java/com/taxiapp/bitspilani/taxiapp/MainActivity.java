@@ -1,18 +1,10 @@
 package com.taxiapp.bitspilani.taxiapp;
 
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.renderscript.ScriptGroup;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -20,74 +12,36 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 //import com.google.android.gms.tasks.Task;
 //import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
-import com.google.api.core.ApiFuture;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.Timestamp;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 import com.taxiapp.bitspilani.pojo.Admin;
 import com.taxiapp.bitspilani.pojo.Booking;
-import com.taxiapp.bitspilani.pojo.Driver;
-import com.taxiapp.bitspilani.pojo.Owner;
 import com.taxiapp.bitspilani.pojo.PersonDetails;
 
-import com.taxiapp.bitspilani.pojo.Station;
 import com.taxiapp.bitspilani.pojo.User;
-import com.taxiapp.bitspilani.pojo.Vehicle;
-
-
 
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -132,6 +86,74 @@ public class MainActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.listview) ;
 
+        final List<Booking> bList = new ArrayList<>();
+        Admin a = new Admin();
+       //a.bookCab();
+        new ScheduleTask().execute();
+        btnSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Admin a = new Admin();
+                a.bookCab();
+                new ScheduleTask().execute();
+            }
+        });
+        /*
+        PD.show();
+        dB.getFirestoreInstance().collection("bookings").orderBy("timestamp")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    ListView listView;
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                           // WriteBatch batch = dB.getFirestoreInstance().batch();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Booking b = document.toObject(Booking.class);
+                                //DocumentReference d = dB.getFirestoreInstance().collection("bookings").document(b.getId());
+                                //batch.update(d,"status","pending");
+                                bookingList.add(b);
+                                Log.i("abc",bookingList.get(0).getSource());
+                                // Log.i("abc",u.getDepartment());
+                            }
+                           /* batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    // ...
+                                }
+                            });*/
+       /*
+                            final CustomAdapter customAdapter = new com.taxiapp.bitspilani.taxiapp.CustomAdapter(MainActivity.this,bookingList);
+                            ImageView imageView = (ImageView)findViewById(R.id.imageView);
+                            listView = (ListView) findViewById(R.id.listview) ;
+                            listView.setAdapter(customAdapter);
+                            PD.dismiss();
+
+                            customAdapter.notifyDataSetChanged();
+                        } else {
+                           PD.dismiss();
+                            Log.d("Error", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });*/
+        // Log.i("abc",bookingList.get(0).getId());
+       /* Task<QuerySnapshot> bookingTask = dB.getFirestoreInstance().collection("bookings").orderBy("timestamp").get();
+       bookingTask.continueWithTask(new Continuation<QuerySnapshot, Task<Void>>() {
+            @Override
+            public Task<Void> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+
+                for(QueryDocumentSnapshot queryDocumentSnapshot:task.getResult())
+                {
+                    Booking b = queryDocumentSnapshot.toObject(Booking.class);
+                    bList.add(b);
+                }
+
+
+                // Log.i("abc",stationList.get(0).getId());
+                //Log.i("abc",ownerList.get(0).getId());
+                return doSomething(bList);
+            }
+        });*/
       /*  dB.getFirestoreInstance().collection("bookings")
                 .orderBy("timestamp")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -159,8 +181,8 @@ public class MainActivity extends AppCompatActivity {
                         //customAdapter.notifyDataSetChanged();
                        // Log.d(TAG, "Current cites in CA: " + cities);
                     }
-                });*/
-      PD.show();
+                });
+     /* PD.show();
       dB.getFirestoreInstance().collection("bookings").orderBy("timestamp")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -197,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         });*/
                                 //break;
-                                bookingList.add(b);
+                              /*  bookingList.add(b);
                                 Log.i("abc",bookingList.get(0).getSource());
                                 Log.i("abc",""+bookingDetails.size());
                             }
@@ -212,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.i("abc"," Value="+user.getId());
                             }*/
 
-                            CustomAdapter customAdapter = new CustomAdapter(MainActivity.this,bookingList);
+                          /*  CustomAdapter customAdapter = new CustomAdapter(MainActivity.this,bookingList);
 
                             listView = (ListView) findViewById(R.id.listview) ;
                             listView.setAdapter(customAdapter);
@@ -246,8 +268,24 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
 
             }
-        });
+        });*/
 
+    }
+    public Task<Void> doSomething(final List<Booking> bList)
+    {
+       for(int i=0;i<bList.size();i++)
+       {
+           final Booking b = bList.get(i);
+           String userId = bList.get(i).getUserId() ;
+           dB.getFirestoreInstance().collection("users").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+               @Override
+               public void onSuccess(DocumentSnapshot documentSnapshot) {
+                  User u = documentSnapshot.toObject(User.class);
+                   bookingDetails.put(b,u);
+               }
+           });
+       }
+       return null;
     }
 
     @Override
@@ -270,9 +308,90 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    private class ScheduleTask extends AsyncTask<String,Integer,List<Booking>>{
+        @Override
+        protected List<Booking> doInBackground(String... strings) {
+
+           // a.bookCab();
+            Task t1 = dB.getFirestoreInstance().collection("bookings").orderBy("timestamp").get();
+            //Task t2 = a.bookCab();
+            try {
+
+                Tasks.await(t1);
 
 
-    private class ScheduleTask extends AsyncTask<String,Integer,List<String>>{
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+                    t1.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                bookingList.clear();
+                                // WriteBatch batch = dB.getFirestoreInstance().batch();
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    Booking b = document.toObject(Booking.class);
+                                    //DocumentReference d = dB.getFirestoreInstance().collection("bookings").document(b.getId());
+                                    //batch.update(d,"status","pending");
+                                    bookingList.add(b);
+                                   // Log.i("abc",bookingList.get(0).getSource());
+                                    // Log.i("abc",u.getDepartment());
+                                }
+                           /* batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    // ...
+                                }
+                            });*/
+
+
+
+
+
+                        } else {
+
+                            Log.d("Error", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+            Log.i("abc","Between");
+            return bookingList;
+        }
+
+        // Before the tasks execution
+        protected void onPreExecute(){
+            // Display the progress dialog on async task start
+            PD.show();
+            Log.i("abc","Pre");
+            //PD.show();
+        }
+
+
+        // After each task done
+        protected void onProgressUpdate(Integer... progress){
+            // Update the progress bar on dialog
+
+        }
+
+        // When all async task done
+        protected void onPostExecute(List<Booking> result){
+            // Hide the progress dialog
+            ListView listView;
+            final CustomAdapter customAdapter = new com.taxiapp.bitspilani.taxiapp.CustomAdapter(MainActivity.this,result);
+            ImageView imageView = (ImageView)findViewById(R.id.imageView);
+            listView = (ListView) findViewById(R.id.listview) ;
+            listView.setAdapter(customAdapter);
+            PD.dismiss();
+          Log.i("abc","Post");
+
+        }
+    }
+
+    /*private class ScheduleTask extends AsyncTask<String,Integer,List<String>>{
         @Override
         protected List<String> doInBackground(String... strings) {
            a.bookCab();
@@ -283,11 +402,12 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
+                                bookingList.clear();
                                 for (QueryDocumentSnapshot document : task.getResult()) {
 
 
 
-                                    final Booking b = document.toObject(Booking.class);
+                                    Booking b = document.toObject(Booking.class);
                                     //dB.getDatabaseRef().child("users").child(b.getUserId()).child("name").getKey();
                                     //Log.i("abc","-------------------------------"+dB.getDatabaseRef().child("users").child(b.getUserId()).child("name").);
                                     //Log.i("abc","-------------------------------"+b.getUserId()+", "+ b.getId() );
@@ -312,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         });*/
                                     //break;
-                                    bookingList.add(b);
+                                  /*  bookingList.add(b);
                                     Log.i("abc",bookingList.get(0).getSource());
                                     Log.i("abc",""+bookingDetails.size());
                                 }
@@ -327,7 +447,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.i("abc"," Value="+user.getId());
                             }*/
 
-                                CustomAdapter customAdapter = new CustomAdapter(MainActivity.this,bookingList);
+                             /*   CustomAdapter customAdapter = new CustomAdapter(MainActivity.this,bookingList);
 
                                 listView = (ListView) findViewById(R.id.listview) ;
                                 listView.setAdapter(customAdapter);
@@ -363,5 +483,5 @@ public class MainActivity extends AppCompatActivity {
             // Hide the progress dialog
             PD.dismiss();
         }
-    }
+    }*/
 }

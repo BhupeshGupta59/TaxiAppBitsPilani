@@ -1,27 +1,23 @@
 package com.taxiapp.bitspilani.pojo;
 
-import android.provider.ContactsContract;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.ListView;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ExecutionException;
 
 public class Admin
 {
@@ -106,50 +102,86 @@ public class Admin
     {
 
     }
-    public void  bookCab()
-    {
-        Database dB = new Database();
-        Task<QuerySnapshot> bookingTask = dB.getFirestoreInstance().collection("bookings").whereEqualTo("status","pending").orderBy("timestamp").get();
-        Task<QuerySnapshot> ownerTask = dB.getFirestoreInstance().collection("owners").get();
-        Task<QuerySnapshot> stationTask = dB.getFirestoreInstance().collection("stations").get();
-        Task<List<Object>> allTasks = Tasks.whenAllSuccess(stationTask, ownerTask, bookingTask);
-
-        allTasks.continueWithTask(new Continuation<List<Object>, Task<Void>>() {
-            @Override
-            public Task<Void> then(@NonNull Task<List<Object>> task) throws Exception {
-                List<Object> objects = task.getResult();
-                List<Booking> bookingList = new ArrayList<>();
-                List<Station> stationList = new ArrayList<>();
-                List<Owner> ownerList = new ArrayList<>();
-
-                QuerySnapshot q1 = (QuerySnapshot)objects.get(0);
-                QuerySnapshot q2 = (QuerySnapshot)objects.get(1);
-                QuerySnapshot q3 = (QuerySnapshot)objects.get(2);
-                for(QueryDocumentSnapshot d1: q1)
-                {
-
-                    stationList.add(d1.toObject(Station.class));
-                   // Log.i("abc",d1.toObject(Station.class).getName());
-                }
-                for(QueryDocumentSnapshot d2: q2)
-                {
-                    ownerList.add(d2.toObject(Owner.class));
-                }
-                int i=0;
-                for(QueryDocumentSnapshot d3: q3)
-                {
-                    Booking b = d3.toObject(Booking.class);
-                    Log.i("booking",b.getId());
-                    bookingList.add(d3.toObject(Booking.class));
-
-                }
-
-
-                // Log.i("abc",stationList.get(0).getId());
-                //Log.i("abc",ownerList.get(0).getId());
-                return bookCab(bookingList,stationList,ownerList);
+    private class ScheduleTask extends AsyncTask<String,Integer,List<String>> {
+        @Override
+        protected List<String> doInBackground(String... strings) {
+            Database dB = new Database();
+            Task<QuerySnapshot> bookingTask = dB.getFirestoreInstance().collection("bookings").whereEqualTo("status","pending").orderBy("timestamp").get();
+            Task<QuerySnapshot> ownerTask = dB.getFirestoreInstance().collection("owners").get();
+            Task<QuerySnapshot> stationTask = dB.getFirestoreInstance().collection("stations").get();
+            Task<List<Object>> allTasks = Tasks.whenAllSuccess(stationTask, ownerTask, bookingTask);
+            try {
+                Tasks.await(allTasks);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        });
+
+            allTasks.continueWithTask(new Continuation<List<Object>, Task<Void>>() {
+                @Override
+                public Task<Void> then(@NonNull Task<List<Object>> task) throws Exception {
+                    List<Object> objects = task.getResult();
+                    List<Booking> bookingList = new ArrayList<>();
+                    List<Station> stationList = new ArrayList<>();
+                    List<Owner> ownerList = new ArrayList<>();
+
+                    QuerySnapshot q1 = (QuerySnapshot)objects.get(0);
+                    QuerySnapshot q2 = (QuerySnapshot)objects.get(1);
+                    QuerySnapshot q3 = (QuerySnapshot)objects.get(2);
+                    for(QueryDocumentSnapshot d1: q1)
+                    {
+
+                        stationList.add(d1.toObject(Station.class));
+                        // Log.i("abc",d1.toObject(Station.class).getName());
+                    }
+                    for(QueryDocumentSnapshot d2: q2)
+                    {
+                        ownerList.add(d2.toObject(Owner.class));
+                    }
+                    int i=0;
+                    for(QueryDocumentSnapshot d3: q3)
+                    {
+                        Booking b = d3.toObject(Booking.class);
+                        Log.i("booking",b.getId());
+                        bookingList.add(d3.toObject(Booking.class));
+
+                    }
+
+
+                    // Log.i("abc",stationList.get(0).getId());
+                    //Log.i("abc",ownerList.get(0).getId());
+                    return bookCab(bookingList,stationList,ownerList);
+                }
+            });
+            return null;
+        }
+
+        // Before the tasks execution
+        protected void onPreExecute(){
+            // Display the progress dialog on async task start
+           Log.i("abc","Pre");
+        }
+
+
+        // After each task done
+        protected void onProgressUpdate(Integer... progress){
+            // Update the progress bar on dialog
+
+        }
+
+        // When all async task done
+        protected void onPostExecute(List<String> result){
+            // Hide the progress dialog
+
+            Log.i("abc","Post");
+
+        }
+    }
+
+    public void bookCab()  {
+       new ScheduleTask().execute();
+
     }
     public Task<Void> bookCab(List<Booking> bookingList, List<Station> stationList,List<Owner >ownerList) {
         Database dB = new Database();
@@ -186,7 +218,7 @@ public class Admin
            }
 
         }
-
+        Log.i("abc","Between");
         return null;
     }
     public boolean getCab(String ownerCity,String vehicleCity,Booking currentBooking,List<Owner> ownerList,List<Station> stationList)
