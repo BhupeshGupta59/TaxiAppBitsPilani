@@ -8,7 +8,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ServerTimestamp;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 
-public class Booking {
+public class Booking implements Comparable<Booking> {
     private String id;
     private String source;
     private String destination;
@@ -188,5 +188,12 @@ public class Booking {
                 });
             }
         });
+    }
+
+
+
+    @Override
+    public int compareTo(Booking o) {
+        return timestamp.compareTo(o.getTimestamp());
     }
 }

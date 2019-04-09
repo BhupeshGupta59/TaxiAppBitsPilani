@@ -9,6 +9,8 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -106,11 +108,20 @@ public class Admin
         @Override
         protected List<String> doInBackground(String... strings) {
             Database dB = new Database();
-            Task<QuerySnapshot> bookingTask = dB.getFirestoreInstance().collection("bookings")
-                    .whereEqualTo("status","pending").orderBy("timestamp").get();
+            Date d = new Date();
+            Timestamp currentTimestamp = new Timestamp(new Date());
+
+            CollectionReference bookingRef = dB.getFirestoreInstance().collection("bookings");
+          //  bookingRef.whereEqualTo("status","pending");
+           // bookingRef.whereEqualTo("status","unapproved");
+          //  bookingRef.whereGreaterThanOrEqualTo("timestamp",currentTimestamp);
+           // bookingRef.orderBy("timestamp").get();
+            Task<QuerySnapshot> bookingTask = bookingRef.whereEqualTo("status","pending").whereGreaterThanOrEqualTo("timestamp",currentTimestamp).get();  //whereGreaterThanOrEqualTo("timestamp",currentTimestamp).orderBy("timestamp").get();
+
             Task<QuerySnapshot> ownerTask = dB.getFirestoreInstance().collection("owners").get();
             Task<QuerySnapshot> stationTask = dB.getFirestoreInstance().collection("stations").get();
-            Task<List<Object>> allTasks = Tasks.whenAllSuccess(stationTask, ownerTask, bookingTask);
+            Task<QuerySnapshot> bookingTask1 = bookingRef.whereEqualTo("status","unapproved").whereGreaterThanOrEqualTo("timestamp",currentTimestamp).get();
+            Task<List<Object>> allTasks = Tasks.whenAllSuccess(stationTask, ownerTask, bookingTask,bookingTask1);
             try {
                 Tasks.await(allTasks);
             } catch (ExecutionException e) {
@@ -130,6 +141,7 @@ public class Admin
                     QuerySnapshot q1 = (QuerySnapshot)objects.get(0);
                     QuerySnapshot q2 = (QuerySnapshot)objects.get(1);
                     QuerySnapshot q3 = (QuerySnapshot)objects.get(2);
+                    QuerySnapshot q4 = (QuerySnapshot)objects.get(3);
                     for(QueryDocumentSnapshot d1: q1)
                     {
 
@@ -148,8 +160,15 @@ public class Admin
                         bookingList.add(d3.toObject(Booking.class));
 
                     }
+                    for(QueryDocumentSnapshot d4: q4)
+                    {
+                        Booking b = d4.toObject(Booking.class);
+                        Log.i("booking",b.getId());
+                        bookingList.add(d4.toObject(Booking.class));
 
+                    }
 
+                    Collections.sort(bookingList);
                     // Log.i("abc",stationList.get(0).getId());
                     //Log.i("abc",ownerList.get(0).getId());
                     return bookCab(bookingList,stationList,ownerList);
@@ -192,6 +211,9 @@ public class Admin
         int flag;
         DocumentReference currentBookingRef = null;
         Log.i("bookingsize",Integer.toString(bookingList.size()));
+        for(int i=0;i<bookingList.size();i++)
+
+        {Log.i("bookingList",bookingList.get(i).getTimestamp().toDate().toString()+" "+bookingList.get(i).getStatus());}
 
         WriteBatch batch = dB.getFirestoreInstance().batch();
         while (bookingIterator.hasNext()) {
@@ -306,14 +328,14 @@ public class Admin
                                             currentVehicleRef = dB.getFirestoreInstance().collection("vehicles").document(currentVehicle.getId());
                                             currentOwnerRef = dB.getFirestoreInstance().collection("owners").document(currentOwner.getId());
                                             currentBookingRef = dB.getFirestoreInstance().collection("bookings").document(currentBooking.getId());
-                                            batch.update(currentBookingRef,"status","approved");
+                                           // batch.update(currentBookingRef,"status","approved");
                                             batch.update(currentBookingRef,"vehicleRef",currentVehicleRef);
                                             batch.update(currentBookingRef,"ownerRef",currentOwnerRef);
                                             batch.update(currentBookingRef,"vehicleId",currentVehicle.getId());
                                             batch.update(currentBookingRef,"ownerId",currentOwner.getId());
                                            // batch.update(currentOwnerRef,"listOfVehicle."+Integer.toString(vehicleIndex)+".status","busy");
                                             batch.update(currentVehicleRef,"status","busy");
-                                            batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                           batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     // ...

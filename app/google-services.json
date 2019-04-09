@@ -8,6 +8,72 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:286560395130:android:a245634da124d05b",
+        "android_client_info": {
+          "package_name": "com.example.anuj.maddeveloper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "286560395130-h6ptj22jljc30d52ju2oslfqajaf0lba.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.anuj.maddeveloper",
+            "certificate_hash": "695ddd1b938349c1bbc718069d07ab8d5f8e8885"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArT2wdi-DJxHlI_y10UcxyU9N5wqOHN54"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "286560395130-gjs58453davvoh1r8lj12f3s56uc555h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286560395130:android:18c555d78b188b45",
+        "android_client_info": {
+          "package_name": "com.example.csv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "286560395130-mb97gc5a78tnu6fl1l17fvr6ae8unpb1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.csv",
+            "certificate_hash": "322cc45b6331d52a93b584ef97f6c1f254bf9882"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArT2wdi-DJxHlI_y10UcxyU9N5wqOHN54"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "286560395130-gjs58453davvoh1r8lj12f3s56uc555h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:286560395130:android:a71fc0d867373ff8",
         "android_client_info": {
           "package_name": "com.taxiapp.bitspilani.taxiapp"
@@ -23,8 +89,20 @@
           }
         },
         {
-          "client_id": "286560395130-gjs58453davvoh1r8lj12f3s56uc555h.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "286560395130-baimkp2bn82jfgp1gmea6p3e9pmomg38.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.taxiapp.bitspilani.taxiapp",
+            "certificate_hash": "695ddd1b938349c1bbc718069d07ab8d5f8e8885"
+          }
+        },
+        {
+          "client_id": "286560395130-e2qbrrkaf75luhn36mpu99uhqlchbqrr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.taxiapp.bitspilani.taxiapp",
+            "certificate_hash": "e50b6551766a1ac458b0efba29117eba8963a92a"
+          }
         }
       ],
       "api_key": [
@@ -33,20 +111,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "286560395130-gjs58453davvoh1r8lj12f3s56uc555h.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }

@@ -6,6 +6,7 @@ android {
     defaultConfig {
         applicationId "com.taxiapp.bitspilani.taxiapp"
         minSdkVersion 15
+        multiDexEnabled true
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -42,5 +43,7 @@ dependencies {
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
     implementation 'com.google.api:api-common:1.7.0'
     implementation 'com.google.api-client:google-api-client:1.28.0'
+    implementation 'com.google.firebase:firebase-storage:16.1.0'
+    implementation group: 'com.opencsv', name: 'opencsv', version: '4.1'
     //implementation 'com.google.firebase:firebase-admin:6.7.0'
 }

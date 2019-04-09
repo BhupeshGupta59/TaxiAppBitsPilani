@@ -2,6 +2,8 @@ package com.taxiapp.bitspilani.taxiapp;
 
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,20 +17,27 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 //import com.google.android.gms.tasks.Task;
 //import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 import com.taxiapp.bitspilani.pojo.Admin;
 import com.taxiapp.bitspilani.pojo.Booking;
@@ -40,7 +49,14 @@ import com.taxiapp.bitspilani.pojo.User;
 import com.taxiapp.bitspilani.pojo.Vehicle;
 
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
     private List<Booking> bookingList = new ArrayList<>();
     private Map<Booking,User> bookingDetails = new HashMap<>();
     private Button btnSchedule;
+    private Button btnDownload;
+    private String fileName;
+
+    private StorageReference storageRef;
     Admin a  = new Admin();
     ListView listView;
     //private Admin scheduleBooking = new Admin();
@@ -80,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnSchedule = (Button) findViewById(R.id.schedule);
+        btnDownload = (Button) findViewById(R.id.downloadButton);
+        btnDownload.setEnabled(false);
+        storageRef = FirebaseStorage.getInstance().getReference();
+
 
 
         PD = new ProgressDialog(this);
@@ -99,8 +123,54 @@ public class MainActivity extends AppCompatActivity {
                 Admin a = new Admin();
                 a.bookCab();
                 new ScheduleTask().execute();
+               new DownloadTask().execute();
+
+              // Log.i("abcde",fileName);
+
             }
         });
+        btnDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Task getUrl = storageRef.child("csv/"+fileName).getDownloadUrl();
+
+                getUrl.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        startActivity(intent);
+
+                        // Got the download URL for 'users/me/profile.png'
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle any errors
+                    }
+                });
+
+            }
+        });
+
+     /*   btnDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                storageRef.child("csv/profile.png").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        // Got the download URL for 'users/me/profile.png'
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle any errors
+                    }
+                });
+            }
+        });*/
+
         /*
         PD.show();
         dB.getFirestoreInstance().collection("bookings").orderBy("timestamp")
@@ -310,13 +380,23 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
 
+
+    }
+    public void downloadFile(String name)
+    {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(name));
+        startActivity(intent);
     }
     private class ScheduleTask extends AsyncTask<String,Integer,List<Booking>>{
         @Override
         protected List<Booking> doInBackground(String... strings) {
 
            // a.bookCab();
-            Task t1 = dB.getFirestoreInstance().collection("bookings").orderBy("timestamp").get();
+            Timestamp currentTimestamp = new Timestamp(new Date());
+            CollectionReference bookingRef = dB.getFirestoreInstance().collection("bookings");
+           // bookingRef.whereGreaterThanOrEqualTo("timestamp",currentTimestamp);
+
+            Task t1 = bookingRef.whereGreaterThan("timestamp",currentTimestamp).orderBy("timestamp").get();
             //Task t2 = a.bookCab();
             try {
 
@@ -393,7 +473,100 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+    private class DownloadTask extends AsyncTask<String,Integer,String>{
+        @Override
+        protected String doInBackground(String... strings) {
 
+            // a.bookCab();
+
+            File csvFile = null;
+
+            FileOutputStream fileout= null;
+            Uri fileUri = null;
+            try {
+                Timestamp reportTime = new Timestamp(new Date());
+                Date reportDate = reportTime.toDate();
+                SimpleDateFormat ft =new SimpleDateFormat ("dd.MM.YYYY_hh:mm_a");
+                fileName = "Report_"+ft.format(reportDate)+".csv";
+                csvFile = new File(getCacheDir(),fileName);
+                fileout = new FileOutputStream(csvFile);
+                OutputStreamWriter outputWriter=new OutputStreamWriter(fileout);
+                outputWriter.write("Banja,a,b,c");
+                outputWriter.close();
+                fileUri = Uri.fromFile(csvFile);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            StorageReference reportRef = FirebaseStorage.getInstance().getReference().child("csv/"+fileUri.getLastPathSegment());
+            UploadTask uploadTask = reportRef.putFile(fileUri);
+            try {
+                Tasks.await(uploadTask);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                    // ...
+                }
+            });
+
+
+            // bookingRef.whereGreaterThanOrEqualTo("timestamp",currentTimestamp);
+
+
+            //Task t2 = a.bookCab();
+            //fileName = csvFile.toString();
+            return  fileName;
+
+        }
+
+        // Before the tasks execution
+        protected void onPreExecute(){
+            // Display the progress dialog on async task start
+            PD.show();
+            Log.i("abc","Pre");
+            //PD.show();
+        }
+
+
+        // After each task done
+        protected void onProgressUpdate(Integer... progress){
+            // Update the progress bar on dialog
+
+        }
+
+        // When all async task done
+        protected void onPostExecute(String result){
+            fileName = result;
+            Log.i("abcde",fileName);
+           btnDownload.setEnabled(true);
+            // Hide the progress dialog
+           /* ListView listView;
+            final CustomAdapter customAdapter = new com.taxiapp.bitspilani.taxiapp.CustomAdapter(MainActivity.this,result);
+            ImageView imageView = (ImageView)findViewById(R.id.imageView);
+            listView = (ListView) findViewById(R.id.listview) ;
+            listView.setAdapter(customAdapter);
+            PD.dismiss();
+            Log.i("abc","Post");*/
+
+        }
+    }
     /*private class ScheduleTask extends AsyncTask<String,Integer,List<String>>{
         @Override
         protected List<String> doInBackground(String... strings) {
