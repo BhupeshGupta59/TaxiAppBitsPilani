@@ -9,7 +9,7 @@ public class Driver extends PersonDetails
 
     private String LicenseNo;
 
-    private String location;
+    private GeoPoint location;
     public Driver()
     {
 
@@ -20,10 +20,16 @@ public class Driver extends PersonDetails
         Database dB = new Database();
         setId(dB.getFirestoreInstance().collection("drivers").document().getId());
         LicenseNo = licenseNo;
-
-
     }
 
+    public Driver(String name, String phoneNo, String emailId, String licenseNo, String location) {
+        super(name, phoneNo, emailId);
+        Database dB = new Database();
+        setId(dB.getFirestoreInstance().collection("drivers").document().getId());
+        LicenseNo = licenseNo;
+        this.location = location;
+    }
+    
     public String getLicenseNo() {
         return LicenseNo;
     }
