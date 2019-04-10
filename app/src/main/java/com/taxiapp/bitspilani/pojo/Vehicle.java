@@ -35,7 +35,7 @@ public class Vehicle
 
     }
     
-    public Vehicle(String id, String name, String carType, String vehicleNo, GeoPoint location, String status, String city, String lastLocationName, int noOfSeats) {
+    public Vehicle(String name, String carType, String vehicleNo, GeoPoint location, String city, String lastLocationName, int noOfSeats) {
         Database dB = new Database();
         id = dB.getFirestoreInstance().collection("vehicles").document().getId();
         this.name = name;
