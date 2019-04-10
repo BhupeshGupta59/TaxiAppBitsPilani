@@ -17,17 +17,25 @@ public class Vehicle
     private String lastLocationName;
     private int noOfSeats;
 
-
-
-
-
-
     public Vehicle()
     {
 
     }
 
     public Vehicle(String name, String carType, String vehicleNo, String city, int noOfSeats) {
+        Database dB = new Database();
+        id = dB.getFirestoreInstance().collection("vehicles").document().getId();
+        this.name = name;
+        this.carType = carType;
+        this.vehicleNo = vehicleNo;
+
+        status = "idle";
+        this.city = city;
+        this.noOfSeats = noOfSeats;
+
+    }
+    
+    public Vehicle(String id, String name, String carType, String vehicleNo, GeoPoint location, String status, String city, String lastLocationName, int noOfSeats) {
         Database dB = new Database();
         id = dB.getFirestoreInstance().collection("vehicles").document().getId();
         this.name = name;
