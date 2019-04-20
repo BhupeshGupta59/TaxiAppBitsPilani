@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.Timestamp;
 import com.taxiapp.bitspilani.pojo.Booking;
@@ -24,8 +27,8 @@ class CustomAdapter extends ArrayAdapter<Booking>
 
     public CustomAdapter(Context context, List<Booking> object){
         super(context,0, object);
-    }
 
+    }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView == null){
@@ -59,8 +62,16 @@ class CustomAdapter extends ArrayAdapter<Booking>
         textView_status.setTextColor(Color.parseColor("#ff0000"));
        // textView_source.setTypeface(textView_source.getTypeface(), Typeface.BOLD);
         //textView_source.append("abc");
+
+
         return convertView;
     }
+
+
+
+
+
+
 
 }
 
