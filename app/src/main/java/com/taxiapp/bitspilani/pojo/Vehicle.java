@@ -1,8 +1,18 @@
 package com.taxiapp.bitspilani.pojo;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
+import android.util.Log;
+
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 import com.taxiapp.bitspilani.enums.*;
+
+import java.io.IOException;
 import java.util.*;
 
 public class Vehicle
@@ -13,29 +23,38 @@ public class Vehicle
     private String vehicleNo;
     private GeoPoint location;
     private String status;
-    private String city;
+    private String ownerCity;
     private String lastLocationName;
     private int noOfSeats;
-
-
-
-
-
 
     public Vehicle()
     {
 
     }
 
-    public Vehicle(String name, String carType, String vehicleNo, String city, int noOfSeats) {
-        Database dB = new Database();
-        id = dB.getFirestoreInstance().collection("vehicles").document().getId();
+    public String getOwnerCity() {
+        return ownerCity;
+    }
+
+    public void setOwnerCity(String ownerCity) {
+        this.ownerCity = ownerCity;
+    }
+
+    public void setLastLocationName(String lastLocationName) {
+        this.lastLocationName = lastLocationName;
+    }
+
+    public Vehicle(String name, String carType, String vehicleNo, String ownerCity, int noOfSeats) {
+
+
+
+        setId(FirebaseFirestore.getInstance().collection("vehicles").document().getId());
         this.name = name;
         this.carType = carType;
         this.vehicleNo = vehicleNo;
 
         status = "idle";
-        this.city = city;
+        this.ownerCity = ownerCity;
         this.noOfSeats = noOfSeats;
 
     }
@@ -88,13 +107,7 @@ public class Vehicle
         this.status = status;
     }
 
-    public String getCity() {
-        return city;
-    }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
 
     public int getNoOfSeats() {
         return noOfSeats;
@@ -109,11 +122,59 @@ public class Vehicle
         {
             return lastLocationName;
         }
-        return city;
+        return ownerCity;
     }
 
     public void setLastLocation(String lastLocationName) {
         this.lastLocationName = lastLocationName;
+    }
+    public float distanceTo(GeoPoint g)
+    {
+        Location l1 = new Location(LocationManager.GPS_PROVIDER);
+        Location l2 = new Location(LocationManager.GPS_PROVIDER);
+        l1.setLatitude(location.getLatitude());
+        l1.setLongitude(location.getLongitude());
+        l2.setLatitude(g.getLatitude());
+        l2.setLongitude(g.getLongitude());
+        return  l1.distanceTo(l2);
+    }
+    public String toCity(Context context )  {
+        Geocoder geocoder;
+        List<Address> addresses = null;
+        geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addresses!=null)
+            {
+                if(addresses.get(0).getLocality().equalsIgnoreCase("New Delhi"))
+                {
+                    return "Delhi";
+                }
+                return addresses.get(0).getLocality();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return null;
+    }
+
+    public String getNearestStation(Context context,List<Station> stationList)
+
+    {
+
+        for(int i=0;i<stationList.size();i++)
+        {
+            Station currentStation = stationList.get(i);
+
+            if(currentStation.distanceTo(location)<=40000)
+            {
+                return currentStation.getName();
+            }
+        }
+        return null;
+
     }
 
 

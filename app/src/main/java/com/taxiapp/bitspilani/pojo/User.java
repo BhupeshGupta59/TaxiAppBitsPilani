@@ -1,8 +1,16 @@
 package com.taxiapp.bitspilani.pojo;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
+
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 
+import java.io.IOException;
 import java.util.*;
 
 public class User extends PersonDetails
@@ -16,11 +24,11 @@ public class User extends PersonDetails
 
     }
 
-    public User(String name, String phoneNo, String emailId, String department) {
+    public User(String name, String phoneNo, String emailId, String department,String city) {
 
-        super(name, phoneNo, emailId);
-        Database dB = new Database();
-        setId(dB.getFirestoreInstance().collection("users").document().getId());
+        super(name, phoneNo, emailId,city);
+
+        setId(FirebaseFirestore.getInstance().collection("users").document().getId());
         this.department = department;
 
     }
@@ -42,4 +50,5 @@ public class User extends PersonDetails
     public void setLocation(GeoPoint location) {
         this.location = location;
     }
+
 }

@@ -6,18 +6,28 @@ public class PersonDetails
     private String name;
     private String phoneNo;
     private String emailId;
+    private String city;
 
     public PersonDetails()
     {
 
     }
 
-    public PersonDetails(String name, String phoneNo, String emailId) {
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public PersonDetails(String name, String phoneNo, String emailId,String city) {
         super();
 
         this.name = name;
         this.phoneNo = phoneNo;
         this.emailId = emailId;
+        this.city=city;
     }
 
     public String getId() {

@@ -1,5 +1,6 @@
 package com.taxiapp.bitspilani.pojo;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -32,8 +33,13 @@ public class Admin
     private List<Driver> listOfDrivers;
     private List<Vehicle> listOfVehicles;
     private List<Owner> listOfOwner;
+    List<ReportBooking> printList ;
 
     public Admin() {
+            printList = new ArrayList<>();
+    }
+    public List<ReportBooking> getPrintList(){
+        return printList;
     }
     public List<User> getListOfUsers() {
         return listOfUsers;
@@ -105,11 +111,18 @@ public class Admin
 
     }
     private class ScheduleTask extends AsyncTask<String,Integer,List<String>> {
+
+        private Context context;
+
+        public ScheduleTask (Context context){
+            this.context = context;
+        }
         @Override
         protected List<String> doInBackground(String... strings) {
             Database dB = new Database();
             Date d = new Date();
             Timestamp currentTimestamp = new Timestamp(new Date());
+            // Log.i("abc",currentTimestamp.toString());
 
             CollectionReference bookingRef = dB.getFirestoreInstance().collection("bookings");
           //  bookingRef.whereEqualTo("status","pending");
@@ -146,32 +159,36 @@ public class Admin
                     {
 
                         stationList.add(d1.toObject(Station.class));
-                        // Log.i("abc",d1.toObject(Station.class).getName());
+                        // Log.i("abc",stationList.get(0).getName());
+                        // // Log.i("abc",d1.toObject(Station.class).getName());
                     }
                     for(QueryDocumentSnapshot d2: q2)
                     {
                         ownerList.add(d2.toObject(Owner.class));
+                        // Log.i("abc",ownerList.get(0).getName());
                     }
                     int i=0;
                     for(QueryDocumentSnapshot d3: q3)
                     {
                         Booking b = d3.toObject(Booking.class);
-                        Log.i("booking",b.getId());
+                        // Log.i("booking",b.getId());
                         bookingList.add(d3.toObject(Booking.class));
+                        // Log.i("abc",bookingList.get(0).getCarType());
 
                     }
                     for(QueryDocumentSnapshot d4: q4)
                     {
                         Booking b = d4.toObject(Booking.class);
-                        Log.i("booking",b.getId());
+                        // Log.i("booking",b.getId());
                         bookingList.add(d4.toObject(Booking.class));
+                        // Log.i("abc",b.getCarType());
 
                     }
 
                     Collections.sort(bookingList);
-                    // Log.i("abc",stationList.get(0).getId());
-                    //Log.i("abc",ownerList.get(0).getId());
-                    return bookCab(bookingList,stationList,ownerList);
+                    // // Log.i("abc",stationList.get(0).getId());
+                    //// Log.i("abc",ownerList.get(0).getId());
+                    return bookCab(context,bookingList,stationList,ownerList);
                 }
             });
             return null;
@@ -180,7 +197,7 @@ public class Admin
         // Before the tasks execution
         protected void onPreExecute(){
             // Display the progress dialog on async task start
-           Log.i("abc","Pre");
+          // // Log.i("abc","Pre");
         }
 
 
@@ -194,26 +211,216 @@ public class Admin
         protected void onPostExecute(List<String> result){
             // Hide the progress dialog
 
-            Log.i("abc","Post");
+          //  // Log.i("abc","Post");
 
         }
     }
 
-    public void bookCab()  {
-       new ScheduleTask().execute();
+    public void bookCab(Context context)  {
+        ScheduleTask myScheduleTask = new ScheduleTask(context);
+       myScheduleTask.execute();
+       // Log.i("abc","bookCab");
 
     }
-    public Task<Void> bookCab(List<Booking> bookingList, List<Station> stationList,List<Owner >ownerList) {
+    public Task<Void> bookCab(Context context, List<Booking> bookingList, List<Station> stationList, List<Owner >ownerList) {
+        Database dB = new Database();
+        // WriteBatch batch = dB.getFirestoreInstance().batch();
+
+        Iterator bookingIterator = bookingList.iterator();
+        Map<String,Vehicle> bookedVehicle = new HashMap<>();
+        int flag;
+        DocumentReference currentBookingRef = null;
+        // Log.i("bookingsize",Integer.toString(bookingList.size()));
+
+       /* for(int i=0;i<bookingList.size();i++)
+
+        {// Log.i("bookingList",bookingList.get(i).getTimestamp().toDate().toString()+" "+bookingList.get(i).getStatus());}*/
+
+        WriteBatch batch = dB.getFirestoreInstance().batch();
+        while (bookingIterator.hasNext()) {
+            flag=0;
+            ReportBooking print = new ReportBooking();
+            Booking currentBooking = (Booking) bookingIterator.next();
+            currentBookingRef = dB.getFirestoreInstance().collection("bookings").document(currentBooking.getId());
+            String sourceStation = currentBooking.getNearestStationFromSource(context,stationList);
+            String destinationStation = currentBooking.getNearestStationFromDestination(context,stationList);
+            String source = currentBooking.getSource();
+            String destination = currentBooking.getDestination();
+            int flagCarType=0;
+            int flagDistance=0;
+            int flagVehicleStatus =0;
+           //
+
+
+                //// Log.i("bookcab", "BookingSource: "+source + " " + "BookingDestination:"+" "+destination);
+                // // Log.i("bookingId",currentBooking.getId());
+                //   // Log.i("currentBooking",currentBooking.getId());
+            if (destinationStation !=null&& getCab(context, destinationStation, source, currentBooking, ownerList, stationList,print)) {
+                    flag = 1;
+                    // // Log.i("currentBooking1",currentBooking.getId());
+                }
+            else if (sourceStation!=null && getCab(context, sourceStation, source, currentBooking, ownerList, stationList,print)) {
+                flag = 1;
+                //// Log.i("currentBooking3",currentBooking.getId());
+            }
+            else if (destinationStation !=null&&getCab(context, destinationStation, destination, currentBooking, ownerList, stationList,print)) {
+                    flag = 1;
+                    //// Log.i("currentBooking2",currentBooking.getId());
+
+                } else if (sourceStation!=null &&getCab(context, sourceStation, destination, currentBooking, ownerList, stationList,print)) {
+                    flag = 1;
+                    //// Log.i("currentBooking4",currentBooking.getId());
+                }
+
+            if(flag==0)
+            {
+               // // Log.i("bookcab",currentBooking.getId());
+
+                print.setSource(currentBooking.getSource());
+                print.setDestination(currentBooking.getDestination());
+
+                print.setId(currentBooking.getId());
+
+
+                print.setTimestamp(currentBooking.getTimestamp());
+                print.setCarType(currentBooking.getCarType());
+                print.setStatus("unapproved");
+                printList.add(print);
+               // batch.update(currentBookingRef,"status","unapproved");
+            }
+            else {
+                // Log.i("bookcab", "***************BOOKING COMPLETE***********************");
+            }
+
+        }
+        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                // ...
+            }
+        });
+       // // Log.i("abc","Between");
+        return null;
+    }
+    public boolean getCab(Context context,String ownerCity,String vehicleCity,Booking currentBooking,List<Owner> ownerList,List<Station> stationList,ReportBooking print) {  // boolean flag = false;
+        Database dB = new Database();
+        int count=1;
+      //  String currentSource = currentBooking.getSource();
+       // String currentDestination = currentBooking.getDestination();
+        String carType = currentBooking.getCarType();
+
+
+        /* Uncomment
+        DocumentReference currentBookingRef = null;
+        DocumentReference currentVehicleRef = null;
+        DocumentReference currentOwnerRef = null;
+        WriteBatch batch = dB.getFirestoreInstance().batch();
+        Uncomment */
+
+
+        Iterator ownerIterator = ownerList.iterator();
+        while (ownerIterator.hasNext()) {
+           // // Log.i("currentBooking ", currentBooking.getId());
+            Owner currentOwner = (Owner) ownerIterator.next();
+           // // Log.i("bookcab","Owner "+Integer.toString(count));
+            count++;
+          //  // Log.i("bookedCab","owner"+" "+currentOwner.getId());
+          //  // Log.i("bookcab","currentOwnercity:"+" "+currentOwner.getCity()+" ReqOwnerCity: "+ownerCity);
+            if (currentOwner.getCity().equalsIgnoreCase(ownerCity)) {
+                Iterator vehicleIterator = currentOwner.getListOfVehicle().iterator();
+                int vehicleIndex = 0;
+                int vcount=1;
+                while (vehicleIterator.hasNext()) {
+                  //  // Log.i("bookcab", "Vehicle " + Integer.toString(vcount));
+                    vcount++;
+                    Vehicle currentVehicle = (Vehicle) vehicleIterator.next();
+
+                   /* String vehicleNearestStation = currentVehicle.getNearestStation(context,stationList);
+                    if(vehicleNearestStation==null){
+                        continue;
+                    }*/
+                   // // Log.i("bookCab", "vehicleCartype:" + " " + currentVehicle.getCarType() + " reqCarType: " + carType);
+                    //// Log.i("bookCab", "vehicleStatus:" + " " + currentVehicle.getStatus() + " reqStatus: " + "idle");
+
+
+                    if (currentVehicle.getStatus().equalsIgnoreCase("idle")){
+                        // vehicleCity.equalsIgnoreCase(vehicleNearestStation)
+                        //// Log.i("bookcab", "reqVehicleCity" + " " + vehicleCity + " currentVehicleCity" + currentVehicle.toCity(context));
+                    float distance = currentVehicle.distanceTo(currentBooking.toGeoPoint(context, vehicleCity));
+                    if(!print.getReason().equalsIgnoreCase("CarType not available"))
+                    {
+                        print.setReason("No vehicle available in nearby stations");
+                    }
+                    if (distance <= 40000) {
+                        print.setReason("CarType not available");
+                        if (currentVehicle.getCarType().equalsIgnoreCase(carType)) {
+
+                          //  // Log.i("bookcab", currentBooking.getId() + " " + currentVehicle.getName());
+                            currentVehicle.setStatus("busy");
+                          //  // Log.i("bookcab Booked", "Source: " + currentBooking.getSource() + " " + "Destination: " + currentBooking.getDestination() + " " + "OwnerCity: " + currentVehicle.getOwnerCity() + " " + "Vehicle Location: " + currentVehicle.toCity(context));
+
+                            print.setSource(currentBooking.getSource());
+                            print.setDestination(currentBooking.getDestination());
+                            print.setOwnerCity(currentOwner.getCity());
+                            print.setVehicleLocation(currentVehicle.toCity(context));
+                            print.setId(currentBooking.getId());
+
+                            print.setOwnerName(currentOwner.getName());
+                            print.setVehicleName(currentVehicle.getName());
+                            print.setTimestamp(currentBooking.getTimestamp());
+                            print.setCarType(currentBooking.getCarType());
+                            print.setStatus("approved");
+                            print.setReason("");
+                            printList.add(print);
+
+                            return true;
+                        }
+                                    /* Uncomment
+                                    currentVehicleRef = dB.getFirestoreInstance().collection("vehicles").document(currentVehicle.getId());
+                                    currentOwnerRef = dB.getFirestoreInstance().collection("owners").document(currentOwner.getId());
+                                    currentBookingRef = dB.getFirestoreInstance().collection("bookings").document(currentBooking.getId());
+                                    batch.update(currentBookingRef, "status", "approved");
+                                    batch.update(currentBookingRef, "vehicleRef", currentVehicleRef);
+                                    batch.update(currentBookingRef, "vehicleRef", currentVehicleRef);
+                                    batch.update(currentBookingRef, "ownerRef", currentOwnerRef);
+                                    batch.update(currentBookingRef, "vehicleId", currentVehicle.getId());
+                                    batch.update(currentBookingRef, "ownerId", currentOwner.getId());
+                                    //batch.update(currentOwnerRef,"listOfVehicle."+Integer.toString(vehicleIndex)+".status","busy");
+                                    batch.update(currentVehicleRef, "status", "busy");
+                                    batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            // ...
+                                        }
+                                    });
+                                    Uncomment */
+
+                    }
+                }
+
+
+
+
+
+                    vehicleIndex++;
+
+                }
+            }
+        }
+        return false;
+    }
+
+   /* public Task<Void> bookCab(List<Booking> bookingList, List<Station> stationList,List<Owner >ownerList) {
         Database dB = new Database();
        // WriteBatch batch = dB.getFirestoreInstance().batch();
         Iterator bookingIterator = bookingList.iterator();
         Map<String,Vehicle> bookedVehicle = new HashMap<>();
         int flag;
         DocumentReference currentBookingRef = null;
-        Log.i("bookingsize",Integer.toString(bookingList.size()));
+        // Log.i("bookingsize",Integer.toString(bookingList.size()));
         for(int i=0;i<bookingList.size();i++)
 
-        {Log.i("bookingList",bookingList.get(i).getTimestamp().toDate().toString()+" "+bookingList.get(i).getStatus());}
+        {// Log.i("bookingList",bookingList.get(i).getTimestamp().toDate().toString()+" "+bookingList.get(i).getStatus());}
 
         WriteBatch batch = dB.getFirestoreInstance().batch();
         while (bookingIterator.hasNext()) {
@@ -221,28 +428,28 @@ public class Admin
             Booking currentBooking = (Booking) bookingIterator.next();
             currentBookingRef = dB.getFirestoreInstance().collection("bookings").document(currentBooking.getId());
 
-           // Log.i("bookingId",currentBooking.getId());
-         //   Log.i("currentBooking",currentBooking.getId());
+           // // Log.i("bookingId",currentBooking.getId());
+         //   // Log.i("currentBooking",currentBooking.getId());
           if(getCab(currentBooking.getDestination(), currentBooking.getSource(), currentBooking, ownerList, stationList))
             {
                 flag=1;
-               // Log.i("currentBooking1",currentBooking.getId());
+               // // Log.i("currentBooking1",currentBooking.getId());
             }
             else if(getCab(currentBooking.getDestination(), currentBooking.getDestination(), currentBooking, ownerList, stationList))
             {
                 flag=1;
-                //Log.i("currentBooking2",currentBooking.getId());
+                //// Log.i("currentBooking2",currentBooking.getId());
 
             }
            else if(getCab(currentBooking.getSource(), currentBooking.getSource(), currentBooking, ownerList, stationList))
             {
                 flag=1;
-                //Log.i("currentBooking3",currentBooking.getId());
+                //// Log.i("currentBooking3",currentBooking.getId());
             }
            else if( getCab(currentBooking.getSource(), currentBooking.getDestination(), currentBooking, ownerList, stationList))
            {
                flag=1;
-               //Log.i("currentBooking4",currentBooking.getId());
+               //// Log.i("currentBooking4",currentBooking.getId());
            }
            if(flag==0)
            {
@@ -256,7 +463,7 @@ public class Admin
                 // ...
             }
         });
-        Log.i("abc","Between");
+        // Log.i("abc","Between");
         return null;
     }
     public boolean getCab(String ownerCity,String vehicleCity,Booking currentBooking,List<Owner> ownerList,List<Station> stationList)
@@ -271,7 +478,7 @@ public class Admin
         WriteBatch batch = dB.getFirestoreInstance().batch();
         Iterator ownerIterator = ownerList.iterator();
         while(ownerIterator.hasNext())
-        {   Log.i("currentBooking ",currentBooking.getId());
+        {   // Log.i("currentBooking ",currentBooking.getId());
             Owner currentOwner = (Owner) ownerIterator.next();
             if(currentOwner.getCity().equalsIgnoreCase(ownerCity))
             {
@@ -292,7 +499,7 @@ public class Admin
                             if(currentStation.getName().equalsIgnoreCase(vehicleCity))
                             {
                                 if(vehicleCity.equalsIgnoreCase(currentVehicle.getLastLocationName()))
-                                {   Log.i("booked",currentBooking.getId()+" "+currentVehicle.getName());
+                                {   // Log.i("booked",currentBooking.getId()+" "+currentVehicle.getName());
                                     currentVehicle.setStatus("busy");
 
                                     currentVehicleRef = dB.getFirestoreInstance().collection("vehicles").document(currentVehicle.getId());
@@ -323,7 +530,7 @@ public class Admin
                                         Map.Entry currentSubstation = (Map.Entry) substationIterator.next();
                                         String currentSubstationName = (String) currentSubstation.getKey();
                                         if(currentSubstationName.equalsIgnoreCase(currentVehicle.getLastLocationName()))
-                                        {   Log.i("booked",currentBooking.getId()+" "+currentVehicle.getName());
+                                        {   // Log.i("booked",currentBooking.getId()+" "+currentVehicle.getName());
                                             currentVehicle.setStatus("busy");
                                             currentVehicleRef = dB.getFirestoreInstance().collection("vehicles").document(currentVehicle.getId());
                                             currentOwnerRef = dB.getFirestoreInstance().collection("owners").document(currentOwner.getId());
@@ -356,11 +563,11 @@ public class Admin
                 }
             }
         }
-       // Log.i("abc","1");
-        ///Log.i("abc Booking",Integer.toString(i));
+       // // Log.i("abc","1");
+        ///// Log.i("abc Booking",Integer.toString(i));
         //i++;
        return false;
+    }*/
+
+
     }
-
-
-}

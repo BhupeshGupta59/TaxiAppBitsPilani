@@ -1,5 +1,6 @@
 package com.taxiapp.bitspilani.pojo;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
 
 import java.util.*;
@@ -7,21 +8,21 @@ import java.util.*;
 public class Owner extends PersonDetails
 {
     private List<Vehicle> listOfVehicle;
-    private List<String> listOfDriver;
-    private String city;
+    private List<Driver> listOfDriver;
+
+
 
     public Owner()
     {
 
     }
 
-    public Owner(String name, String phoneNo, String emailId, List<Vehicle> listOfVehicle, List<String> listOfDriver, String city) {
-        super(name, phoneNo, emailId);
-        Database dB = new Database();
-        setId(dB.getFirestoreInstance().collection("owners").document().getId());
-        this.listOfVehicle = listOfVehicle;
-        this.listOfDriver = listOfDriver;
-        this.city = city;
+    public Owner(String name, String phoneNo, String emailId, String city) {
+        super(name, phoneNo, emailId,city);
+
+        setId(FirebaseFirestore.getInstance().collection("owners").document().getId());
+
+
     }
 
     public List<Vehicle> getListOfVehicle() {
@@ -32,19 +33,20 @@ public class Owner extends PersonDetails
         this.listOfVehicle = listOfVehicle;
     }
 
-    public List<String> getListOfDriver() {
+    public List<Driver> getListOfDriver() {
         return listOfDriver;
     }
 
-    public void setListOfDriver(List<String> listOfDriver) {
+    public void setListOfDriver(List<Driver> listOfDriver) {
         this.listOfDriver = listOfDriver;
     }
 
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
+   public void addVehicle(Vehicle vehicle)
+   {
+       listOfVehicle.add(vehicle);
+   }
+    public void addDriver(Driver driver)
+    {
+       listOfDriver.add(driver);
     }
 }

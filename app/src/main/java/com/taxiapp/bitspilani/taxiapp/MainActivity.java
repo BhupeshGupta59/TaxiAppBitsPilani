@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -32,6 +33,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -39,19 +41,24 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.taxiapp.bitspilani.CommonDBOperation.Database;
+import com.taxiapp.bitspilani.UIComponent.OwnerDriverVehicleTestCases;
 import com.taxiapp.bitspilani.pojo.Admin;
 import com.taxiapp.bitspilani.pojo.Booking;
 import com.taxiapp.bitspilani.pojo.Driver;
+import com.taxiapp.bitspilani.pojo.Example;
 import com.taxiapp.bitspilani.pojo.Owner;
 import com.taxiapp.bitspilani.pojo.PersonDetails;
 
+import com.taxiapp.bitspilani.pojo.ReportBooking;
 import com.taxiapp.bitspilani.pojo.User;
 import com.taxiapp.bitspilani.pojo.Vehicle;
 
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
@@ -60,6 +67,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
@@ -76,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private Map<Booking,User> bookingDetails = new HashMap<>();
     private Button btnSchedule;
     private Button btnDownload;
+    private Button testCase;
     private String fileName;
 
     private StorageReference storageRef;
@@ -101,10 +110,11 @@ public class MainActivity extends AppCompatActivity {
 
         btnSchedule = (Button) findViewById(R.id.schedule);
         btnDownload = (Button) findViewById(R.id.downloadButton);
+       // testCase = (Button) findViewById(R.id.button3);
         btnDownload.setEnabled(false);
         storageRef = FirebaseStorage.getInstance().getReference();
 
-
+        Log.i("abc","csdvd");
 
         PD = new ProgressDialog(this);
         PD.setMessage("Loading...");
@@ -114,16 +124,32 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listview) ;
 
         final List<Booking> bList = new ArrayList<>();
+        Example myTask = new Example();
+        myTask.execute();
+        Log.i("async","Complete");
+
 
        //a.bookCab();
-        new ScheduleTask().execute();
+      // dB.otherTestCases(MainActivity.this);
+       //dB.bookingTestCases(MainActivity.this);
+     /*   new ScheduleTask().execute();
         btnSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Admin a = new Admin();
-                a.bookCab();
+
+                Log.i("abc","schedule");
+
+              a.bookCab(MainActivity.this);
                 new ScheduleTask().execute();
-               new DownloadTask().execute();
+               //Uncomment  a.bookCab(MainActivity.this);
+               // a.testBookCab(MainActivity.this);
+                    //dB.bookingTestCases();
+               // dB.otherTestCases(MainActivity.this);
+              // dB.otherTestCases(MainActivity.this);
+              // dB.otherTestCases(MainActivity.this);
+                //a.testBookCab(MainActivity.this);
+
+
 
               // Log.i("abcde",fileName);
 
@@ -153,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+*/
 
      /*   btnDownload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -343,6 +370,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
+
     }
     public Task<Void> doSomething(final List<Booking> bList)
     {
@@ -441,15 +469,18 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-            Log.i("abc","Between");
-            return bookingList;
+            //Log.i("abc","Between");
+            Database dB = new Database();
+            //Uncomment
+                //return bookingList;
+            return bookingList; //Comment
         }
 
         // Before the tasks execution
         protected void onPreExecute(){
             // Display the progress dialog on async task start
             PD.show();
-            Log.i("abc","Pre");
+           // Log.i("abc","Pre");
             //PD.show();
         }
 
@@ -468,8 +499,9 @@ public class MainActivity extends AppCompatActivity {
             ImageView imageView = (ImageView)findViewById(R.id.imageView);
             listView = (ListView) findViewById(R.id.listview) ;
             listView.setAdapter(customAdapter);
-            PD.dismiss();
-          Log.i("abc","Post");
+            new DownloadTask().execute();
+
+          //Log.i("abc","Post");
 
         }
     }
@@ -491,7 +523,14 @@ public class MainActivity extends AppCompatActivity {
                 csvFile = new File(getCacheDir(),fileName);
                 fileout = new FileOutputStream(csvFile);
                 OutputStreamWriter outputWriter=new OutputStreamWriter(fileout);
-                outputWriter.write("Banja,a,b,c");
+
+                outputWriter.write("BookingId,Source,Destination,CarType,BookingStatus,OwnerName,OwnerCity,VehicleName,VehicleCity,BookingTime,Reason");
+
+                List<ReportBooking> aList = a.getPrintList();
+                for(int i=0;i<aList.size();i++) {
+                    outputWriter.write("\n");
+                    outputWriter.write(aList.get(i).getId()+","+aList.get(i).getSource()+","+aList.get(i).getDestination()+","+aList.get(i).getCarType()+","+aList.get(i).getStatus()+","+aList.get(i).getOwnerName()+","+aList.get(i).getOwnerCity()+","+aList.get(i).getVehicleName()+","+aList.get(i).getVehicleLocation()+","+aList.get(i).getTimestamp().toDate().toString()+","+aList.get(i).getReason());
+                }
                 outputWriter.close();
                 fileUri = Uri.fromFile(csvFile);
 
@@ -540,7 +579,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute(){
             // Display the progress dialog on async task start
             PD.show();
-            Log.i("abc","Pre");
+           // Log.i("abc","Pre");
             //PD.show();
         }
 
@@ -554,7 +593,8 @@ public class MainActivity extends AppCompatActivity {
         // When all async task done
         protected void onPostExecute(String result){
             fileName = result;
-            Log.i("abcde",fileName);
+           // Log.i("abcde",fileName);
+            PD.dismiss();
            btnDownload.setEnabled(true);
             // Hide the progress dialog
            /* ListView listView;

@@ -11,9 +11,7 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintEnd_toEndOf="@+id/schedule"
-        app:layout_constraintStart_toEndOf="@+id/schedule">
+        android:layout_height="match_parent">
 
 
         <ListView
@@ -44,11 +42,12 @@
             android:id="@+id/downloadButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button"
+            android:text="Report"
             app:layout_constraintBottom_toBottomOf="@+id/schedule"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/schedule"
             app:layout_constraintTop_toTopOf="@+id/schedule" />
+
     </android.support.constraint.ConstraintLayout>
 
     <android.support.design.widget.NavigationView
