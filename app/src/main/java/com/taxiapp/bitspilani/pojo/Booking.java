@@ -33,7 +33,7 @@ public class Booking implements Comparable<Booking> {
     private DocumentReference vehicleRef;
     private DocumentReference driverRef;
     private String userId;
-    private  String ownerId;
+    private String ownerId;
     private String vehicleId;
     private String driverId;
 
@@ -50,8 +50,6 @@ public class Booking implements Comparable<Booking> {
         this.timestamp = timestamp;
         this.carType = carType;
         this.userId = userId;
-
-
 
     }
 

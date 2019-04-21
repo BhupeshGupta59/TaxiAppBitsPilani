@@ -64,6 +64,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -520,18 +521,41 @@ public class MainActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position,
                                         long id) {
 
-                    //Toast.makeText(getBaseContext(), "working", Toast.LENGTH_LONG).show();
+                    final Intent i = new Intent(getApplicationContext(), BookingInformation.class);
 
+                    Booking b = (Booking) parent.getItemAtPosition(position);
 
-                    Intent i = new Intent(getApplicationContext(), BookingInformation.class);
-                   // view.getClass()
-                    //Booking b = getItem(position);
+                    i.putExtra("Source", b.getSource());
+                    i.putExtra("Destination", b.getDestination());
+                    i.putExtra("carType", b.getCarType());
+                    i.putExtra("status", b.getStatus());
+
+                    Timestamp dateTime= b.getTimestamp();
+                    Date date = dateTime.toDate();
+                    String strDateFormat = "hh:mm a";
+                    String dFormat = "dd/MM/yyyy";
+                    DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+                    DateFormat dFormat1 =new SimpleDateFormat(dFormat);
+                    String dateFormatted = dFormat1.format(date);
+                    String timeFormat= dateFormat.format(date);
+
+                    i.putExtra("dateFormatted", dateFormatted);
+                    i.putExtra("timeFormat", timeFormat);
+
+                    i.putExtra("journeyStartTime", b.getJourneyStartTime());
+                    i.putExtra("journeyEndTIme", b.getJourneyEndTIme());
+
+                    i.putExtra("ownerid", b.getOwnerId());
+                    i.putExtra("driverid", b.getDriverId());
+                    i.putExtra("vehicleid", b.getVehicleId());
+                    i.putExtra("userid", b.getUserId());
+
+                    startActivity(i);
 
                 }
             });
-            new DownloadTask().execute();
 
-          //Log.i("abc","Post");
+            new DownloadTask().execute();
 
         }
     }
